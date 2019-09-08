@@ -1,0 +1,102 @@
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+
+CREATE TABLE `fee` (
+  `order_id` varchar(26) NOT NULL,
+  `final_value_fee` decimal(4,2) NOT NULL,
+  `paypal_fee` decimal(4,2) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `feedback` (
+  `feedback_id` varchar(255) NOT NULL,
+  `legacy_order_id` varchar(255) NOT NULL,
+  `feedback_type` set('Negative','Neutral','Positive','Withdrawn') NOT NULL,
+  `comment` varchar(85) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `fulfillment` (
+  `order_id` varchar(26) NOT NULL,
+  `buyer_name` varchar(64) NOT NULL,
+  `address_line_1` varchar(64) NOT NULL,
+  `city` varchar(64) NOT NULL,
+  `county` varchar(64) NOT NULL,
+  `post_code` varchar(9) NOT NULL,
+  `country_code` char(2) NOT NULL,
+  `fulfillment_method` varchar(64) DEFAULT NULL,
+  `fulfillment_cost` decimal(6,2) DEFAULT NULL,
+  `tracking_id` varchar(32) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `line` (
+  `line_item_id` bigint(20) NOT NULL,
+  `order_id` varchar(26) NOT NULL,
+  `item_id` bigint(12) UNSIGNED NOT NULL,
+  `title` varchar(80) NOT NULL,
+  `sale_format` set('AUCTION','FIXED_PRICE','OTHER','SECOND_CHANCE_OFFER') NOT NULL,
+  `quantity` tinyint(3) UNSIGNED NOT NULL,
+  `fulfillment_status` set('FULFILLED','IN_PROGRESS','NOT_STARTED','') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `payment` (
+  `line_item_id` bigint(20) NOT NULL,
+  `order_id` varchar(26) NOT NULL,
+  `payment_id` varchar(17) NOT NULL,
+  `payment_date` datetime NOT NULL,
+  `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
+  `currency` varchar(3) NOT NULL,
+  `item_cost` decimal(6,2) NOT NULL,
+  `postage_cost` decimal(6,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `sale` (
+  `order_id` varchar(26) NOT NULL,
+  `legacy_order_id` varchar(255) NOT NULL,
+  `sale_date` datetime NOT NULL,
+  `buyer_username` varchar(64) NOT NULL,
+  `status` varchar(255) NOT NULL,
+  `last_updated` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
+ALTER TABLE `fee`
+  ADD PRIMARY KEY (`order_id`);
+
+ALTER TABLE `feedback`
+  ADD PRIMARY KEY (`feedback_id`),
+  ADD KEY `feedback_legacy_order_id` (`legacy_order_id`);
+
+ALTER TABLE `fulfillment`
+  ADD PRIMARY KEY (`order_id`);
+
+ALTER TABLE `line`
+  ADD PRIMARY KEY (`line_item_id`),
+  ADD KEY `line_order_id` (`order_id`);
+
+ALTER TABLE `payment`
+  ADD PRIMARY KEY (`line_item_id`),
+  ADD KEY `payment_order_id` (`order_id`);
+
+ALTER TABLE `sale`
+  ADD PRIMARY KEY (`order_id`),
+  ADD UNIQUE KEY `legacy_order_id` (`legacy_order_id`);
+
+
+ALTER TABLE `feedback`
+  ADD CONSTRAINT `feedback_legacy_order_id` FOREIGN KEY (`legacy_order_id`) REFERENCES `sale` (`legacy_order_id`);
+
+ALTER TABLE `payment`
+  ADD CONSTRAINT `payment_line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`),
+  ADD CONSTRAINT `payment_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
