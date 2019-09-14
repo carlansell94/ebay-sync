@@ -34,7 +34,10 @@ class Line():
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO line VALUES(%s, %s, %s, %s, %s, %s, %s)""",
+        query.execute("""INSERT INTO line (line_item_id, order_id, item_id,
+                        title, sale_format, quantity, fulfillment_status)
+                        VALUES(%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE
+                        KEY UPDATE fulfillment_status=VALUES(fulfillment_status)""",
                         (self.line_item_id, self.order_id, self.item_id,
                             self.title, self.sale_format, self.quantity,
                             self.fulfillment_status

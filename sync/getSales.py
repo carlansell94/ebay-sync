@@ -39,7 +39,6 @@ class getSales:
             order_id = sale['orderId'].split('!')[0]
             self.sale.setOrderId(order_id)
             self.line.setOrderId(order_id)
-            self.payment.setOrderId(order_id)
             self.fulfillment.setOrderId(order_id)
             self.sale.setLastUpdated(sale['lastModifiedDate'])
 
@@ -51,7 +50,7 @@ class getSales:
                 self.sale.add()
 
                 for line_items in sale['lineItems']:
-                    self.line_item_id = line_items['legacyItemId']
+                    self.line_item_id = line_items['lineItemId']
                     self.line.setItemId(line_items['legacyItemId'])
                     self.line.setLineItemId(self.line_item_id)
                     self.line.setTitle(line_items['title'])

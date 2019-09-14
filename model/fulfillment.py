@@ -36,7 +36,8 @@ class Fulfillment():
         query = self.db.cursor()
         query.execute("""INSERT INTO fulfillment (order_id, buyer_name,
                         address_line_1, city, county, post_code, country_code)
-                        VALUES(%s, %s, %s, %s, %s, %s, %s)""",
+                        VALUES(%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY
+                        UPDATE order_id = VALUES(order_id)""",
                         (self.order_id, self.buyer_name, self.address_line_1,
                             self.city, self.county, self.post_code,
                             self.country_code
