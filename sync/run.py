@@ -2,6 +2,7 @@
 
 import MySQLdb
 import sys
+import re
 sys.path.append("..")
 
 from datetime import datetime, timedelta
@@ -24,7 +25,8 @@ sales.fetch().parse()
 sale = Sale(db)
 legacy_order_ids = sale.getLegacyOrderIds()
 for order_id in legacy_order_ids:
-    getFeedback(db, credentials).fetch(order_id[0])
+    if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
+        getFeedback(db, credentials).fetch(order_id[0])
 
 # Get eBay Fees
 ebay_fees = getEbayFees(db, credentials).fetch()
