@@ -17,7 +17,7 @@ class Feedback():
         return self
 
     def setComment(self, value):
-        self.comment = value
+        self.comment = value.encode("utf-8")
         return self
 
     def add(self):
