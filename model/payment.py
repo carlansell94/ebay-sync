@@ -6,12 +6,14 @@ class Payment():
     def __init__(self, db):
         self.db = db
 
+    def updateStatus(self, value):
+        query = self.db.cursor()
+        query.execute("UPDATE payment SET payment_status = %s WHERE line_item_id = %s",
+                        (value, self.line_item_id)
+        )
+
     def setLineItemId(self, value):
         self.line_item_id = value
-        return self
-
-    def setPaymentId(self, value):
-        self.payment_id = value
         return self
 
     def setPaymentDate(self, value):
@@ -34,15 +36,19 @@ class Payment():
     def setPostageCost(self, value):
         self.postage_cost = value
         return self
+        
+    def setTransactionId(self, value):
+        self.transaction_id = value
+        return self
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO payment (line_item_id, payment_id,
+        query.execute("""INSERT INTO payment (line_item_id, transaction_id,
                         payment_date, payment_status, currency, item_cost,
                         postage_cost) VALUES (%s, %s, %s, %s, %s, %s, %s)
                         ON DUPLICATE KEY UPDATE payment_status = VALUES(
                         payment_status), item_cost=VALUES(item_cost)""",
-                        (self.line_item_id, self.payment_id,
+                        (self.line_item_id, self.transaction_id,
                             self.payment_date, self.payment_status,
                             self.currency, self.item_cost, self.postage_cost
                         )

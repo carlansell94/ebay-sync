@@ -22,6 +22,12 @@ class Sale():
 
         return query.fetchall()
 
+    def updateStatus(self, value):
+        query = self.db.cursor()
+        query.execute("UPDATE sale SET status = %s WHERE order_id = %s",
+                        (value, self.order_id)
+        )
+
     def setOrderId(self, value):
         self.order_id = value
         return self
