@@ -6,6 +6,7 @@ from model.line import Line
 from model.payment import Payment
 from model.fulfillment import Fulfillment
 from datetime import datetime
+from model.fee import Fee
 
 class getSales:
     def __init__(self, db, credentials):
@@ -48,6 +49,11 @@ class getSales:
                 self.sale.setBuyerUsername(sale['buyer']['username'])
                 self.sale.setStatus(sale['orderFulfillmentStatus'])
                 self.sale.add()
+                
+                self.fee = Fee(self.db)
+                self.fee.setOrderId(order_id)
+                self.fee.setFinalValueFee(sale['totalMarketplaceFee']['value'])
+                self.fee.addEbayFee()
 
                 for line_items in sale['lineItems']:
                     self.line_item_id = line_items['lineItemId']
