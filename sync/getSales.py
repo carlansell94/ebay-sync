@@ -31,6 +31,15 @@ class getSales:
 
         return True
 
+    def getFulfillmentLinks(self):
+        fulfillmentLinks = []
+
+        for sale in self.sales['orders']:
+            for fulfillment_link in sale['fulfillmentHrefs']:
+                fulfillmentLinks.append(fulfillment_link)
+
+        return fulfillmentLinks
+
     def parse(self):
         for sale in self.sales['orders']:
             self.sale = Sale(self.db)
