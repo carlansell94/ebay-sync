@@ -19,14 +19,14 @@ CREATE TABLE `feedback` (
   `feedback_id` varchar(13) NOT NULL,
   `legacy_order_id` varchar(255) NOT NULL,
   `feedback_type` set('Negative','Neutral','Positive','Withdrawn') NOT NULL,
-  `comment` varchar(85) NOT NULL
+  `comment` varchar(256) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `fulfillment` (
   `order_id` varchar(26) NOT NULL,
   `buyer_name` varchar(64) NOT NULL,
   `address_line_1` varchar(64) NOT NULL,
-  `city` varchar(64) NOT NULL,
+  `city` varchar(128) NOT NULL,
   `county` varchar(64) NOT NULL,
   `post_code` varchar(9) NOT NULL,
   `country_code` char(2) NOT NULL,
