@@ -34,6 +34,14 @@ CREATE TABLE `address` (
   `tracking_id` varchar(32) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `fulfillment` (
+  `fulfillment_id` varchar(32) NOT NULL,
+  `fulfillment_date` datetime NOT NULL,
+  `carrier` varchar(32) NOT NULL,
+  `tracking_id` varchar(32) NOT NULL,
+  `fulfillment_cost` decimal(6,2) UNSIGNED DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `line` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
   `order_id` varchar(26) NOT NULL,
@@ -42,6 +50,12 @@ CREATE TABLE `line` (
   `sale_format` set('AUCTION','FIXED_PRICE','OTHER','SECOND_CHANCE_OFFER') NOT NULL,
   `quantity` tinyint(3) UNSIGNED NOT NULL,
   `fulfillment_status` set('FULFILLED','IN_PROGRESS','NOT_STARTED','') NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `line_fulfillment` (
+  `f_link_id` int(10) UNSIGNED NOT NULL,
+  `fulfillment_id` varchar(32) NOT NULL,
+  `line_item_id` bigint(14) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `payment` (
@@ -87,9 +101,17 @@ ALTER TABLE `feedback`
 ALTER TABLE `address`
   ADD PRIMARY KEY (`order_id`);
 
+ALTER TABLE `fulfillment`
+  ADD PRIMARY KEY (`fulfillment_id`);
+
 ALTER TABLE `line`
   ADD PRIMARY KEY (`line_item_id`),
   ADD KEY `line_order_id` (`order_id`);
+
+ALTER TABLE `line_fulfillment`
+  ADD PRIMARY KEY (`f_link_id`),
+  ADD UNIQUE KEY `line_item_id` (`line_item_id`),
+  ADD KEY `fulfillment-fulfillment_id` (`fulfillment_id`);
 
 ALTER TABLE `payment`
   ADD PRIMARY KEY (`line_item_id`);
@@ -115,6 +137,13 @@ ALTER TABLE `feedback`
 
 ALTER TABLE `address`
   ADD CONSTRAINT `fulfillment_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;
+
+ALTER TABLE `line`
+  ADD CONSTRAINT `line_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;
+
+ALTER TABLE `line_fulfillment`
+  ADD CONSTRAINT `fulfillment-fulfillment_id` FOREIGN KEY (`fulfillment_id`) REFERENCES `fulfillment` (`fulfillment_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `line-line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `payment`
   ADD CONSTRAINT `payment_line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON UPDATE CASCADE,

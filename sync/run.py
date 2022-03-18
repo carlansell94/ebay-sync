@@ -9,8 +9,10 @@ from datetime import datetime, timedelta
 from core.credentials import Credentials
 from model.feedback import Feedback
 from model.sale import Sale
+from model.fulfillment import Fulfillment
 from sync.getSales import getSales
 from sync.getFeedback import getFeedback
+from sync.getFulfillment import getFulfillment
 
 credentials = Credentials()
 db = MySQLdb.connect(db=credentials.db_name, user=credentials.db_user,
@@ -26,3 +28,20 @@ legacy_order_ids = sale.getLegacyOrderIds()
 for order_id in legacy_order_ids:
     if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
         getFeedback(db, credentials).fetch(order_id[0])
+
+# Get fulfillment info
+fulfillment = getFulfillment(credentials)
+
+for link in sales.getFulfillmentLinks():
+    out = fulfillment.setUri(link).fetch()
+
+    if out is not None:
+        f = Fulfillment(db)
+        f.setFulfillmentId(out['fulfillmentId'])
+        f.setCarrier(out['shippingCarrierCode'])
+        f.setTrackingId(out['shipmentTrackingNumber'])
+        f.setFulfillmentDate(out['shippedDate'])
+        f.add()
+
+        f.setLineItemIds(out['lineItems'])
+        f.addLineItems()
