@@ -90,7 +90,9 @@ class getSales:
                     self.transaction.setFeeAmount(0)
                     self.transaction.setFeeCurrency(sale['pricingSummary']['total']['currency'])
                     self.transaction.setTransactionStatus('S')
-                    transaction_id = self.transaction.add()
+                    
+                    if not self.transaction.alreadyExists():
+                        transaction_id = self.transaction.add()
                     
                     self.payment.setPaymentDate(payment['paymentDate'])
                     self.payment.setPaymentStatus(payment['paymentStatus'])        

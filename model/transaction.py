@@ -45,6 +45,22 @@ class Transaction():
                             .strftime("%Y-%m-%d %H:%M:%S"))
                                 
         return self
+        
+    def alreadyExists(self):
+        query = self.db.cursor()
+        query.execute("""SELECT processor_id, processor_name
+                        FROM transaction
+                        WHERE processor_id = %s
+                        AND processor_name = %s""",
+                        (self.processor_id, self.processor_name)
+        )
+        
+        transaction = cursor.fetchone()  
+
+        if not msg:
+            return False
+            
+        return True           
 
     def add(self):
         query = self.db.cursor()
