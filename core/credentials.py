@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 from urllib.request import Request, urlopen
-from urllib import parse
+from urllib import parse, error
+import urllib
 from os.path import dirname, abspath
 from configparser import ConfigParser
 from base64 import b64encode
@@ -36,6 +37,10 @@ class Credentials:
         req = Request('https://api.ebay.com/identity/v1/oauth2/token', data=data)
         req.add_header('Content-Type', 'application/x-www-form-urlencoded')
         req.add_header('Authorization', 'Basic ' + self.getOauthCredentials())
-        content = urlopen(req).read()
-        token = json.loads(content)['access_token']
-        return token
+        try:
+            content = urlopen(req).read()
+            token = json.loads(content)['access_token']
+            return token
+        except urllib.error.HTTPError as e:
+            body = e.read().decode()
+        
