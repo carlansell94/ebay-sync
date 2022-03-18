@@ -104,9 +104,12 @@ class getSales:
                         ['addressLine1']
                     )
                     self.fulfillment.setCity(ship_to['contactAddress']['city'])
-                    self.fulfillment.setCounty(ship_to['contactAddress']
-                        ['stateOrProvince']
-                    )
+
+                    try:
+                        self.fulfillment.setCounty(ship_to['contactAddress']['stateOrProvince'])
+                    except KeyError:
+                        self.fulfillment.setCounty("")
+
                     self.fulfillment.setPostCode(ship_to['contactAddress']
                         ['postalCode']
                     )
