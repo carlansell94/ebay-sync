@@ -54,12 +54,10 @@ class Transaction():
                         AND processor_name = %s""",
                         (self.processor_id, self.processor_name)
         )
-        
-        transaction = query.fetchone()  
 
-        if not msg:
+        if not query.fetchone():
             return False
-            
+
         return True           
 
     def add(self):
