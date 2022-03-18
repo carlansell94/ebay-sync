@@ -55,7 +55,7 @@ class Transaction():
                         (self.processor_id, self.processor_name)
         )
         
-        transaction = cursor.fetchone()  
+        transaction = query.fetchone()  
 
         if not msg:
             return False
