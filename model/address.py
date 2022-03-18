@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-class Fulfillment():
+class Address():
     def __init__(self, db):
         self.db = db
 
@@ -34,7 +34,7 @@ class Fulfillment():
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO fulfillment (order_id, buyer_name,
+        query.execute("""INSERT INTO addresses (order_id, buyer_name,
                         address_line_1, city, county, post_code, country_code)
                         VALUES(%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY
                         UPDATE order_id = VALUES(order_id)""",

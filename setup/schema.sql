@@ -21,7 +21,7 @@ CREATE TABLE `feedback` (
   `comment` varchar(256) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `fulfillment` (
+CREATE TABLE `address` (
   `order_id` varchar(26) NOT NULL,
   `buyer_name` varchar(64) NOT NULL,
   `address_line_1` varchar(64) NOT NULL,
@@ -84,7 +84,7 @@ ALTER TABLE `feedback`
   ADD PRIMARY KEY (`feedback_id`),
   ADD KEY `feedback_legacy_order_id` (`legacy_order_id`);
 
-ALTER TABLE `fulfillment`
+ALTER TABLE `address`
   ADD PRIMARY KEY (`order_id`);
 
 ALTER TABLE `line`
@@ -113,7 +113,7 @@ ALTER TABLE `fee`
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_legacy_order_id` FOREIGN KEY (`legacy_order_id`) REFERENCES `sale` (`legacy_order_id`) ON UPDATE CASCADE;
 
-ALTER TABLE `fulfillment`
+ALTER TABLE `address`
   ADD CONSTRAINT `fulfillment_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;
 
 ALTER TABLE `payment`
