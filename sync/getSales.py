@@ -5,6 +5,7 @@ from model.sale import Sale
 from model.line import Line
 from model.payment import Payment
 from model.fulfillment import Fulfillment
+from model.transaction import Transaction
 from datetime import datetime
 from model.fee import Fee
 
@@ -36,6 +37,7 @@ class getSales:
             self.line = Line(self.db)
             self.payment = Payment(self.db)
             self.fulfillment = Fulfillment(self.db)
+            self.transaction = Transaction(self.db)
 
             order_id = sale['orderId'].split('!')[0]
             self.sale.setOrderId(order_id)
@@ -79,9 +81,20 @@ class getSales:
                     )
 
                 for payment in sale['paymentSummary']['payments']:
-                    self.payment.setPaymentId(payment['paymentReferenceId'])
+                    self.transaction.setProcessorName(payment['paymentMethod'])
+                    self.transaction.setProcessorId(sale['salesRecordReference'])
+                    self.transaction.setTransactionDate(payment['paymentDate'])
+                    self.transaction.setUpdateDate(payment['paymentDate'])
+                    self.transaction.setTransactionAmount(sale['pricingSummary']['total']['value'])
+                    self.transaction.setTransactionCurrency(sale['pricingSummary']['total']['currency'])
+                    self.transaction.setFeeAmount(0)
+                    self.transaction.setFeeCurrency(sale['pricingSummary']['total']['currency'])
+                    self.transaction.setTransactionStatus('S')
+                    transaction_id = self.transaction.add()
+                    
                     self.payment.setPaymentDate(payment['paymentDate'])
-                    self.payment.setPaymentStatus(payment['paymentStatus'])                
+                    self.payment.setPaymentStatus(payment['paymentStatus'])        
+                    self.payment.setTransactionId(transaction_id)        
                     self.payment.add()
 
                 for shipping in sale['fulfillmentStartInstructions']:

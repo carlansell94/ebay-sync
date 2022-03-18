@@ -11,8 +11,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `fee` (
   `order_id` varchar(26) NOT NULL,
-  `final_value_fee` decimal(4,2) NOT NULL,
-  `paypal_fee` decimal(4,2) DEFAULT NULL
+  `final_value_fee` decimal(4,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `feedback` (
@@ -47,12 +46,25 @@ CREATE TABLE `line` (
 
 CREATE TABLE `payment` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
-  `payment_id` varchar(17) NOT NULL,
+  `transaction_id` int(4) NOT NULL,
   `payment_date` datetime NOT NULL,
   `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
   `currency` varchar(3) NOT NULL,
   `item_cost` decimal(6,2) NOT NULL,
   `postage_cost` decimal(6,2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `transaction` (
+  `transaction_id` int(4) NOT NULL,
+  `processor_name` set('PAYPAL','EBAY') NOT NULL DEFAULT 'PAYPAL',
+  `processor_id` varchar(17) NOT NULL,
+  `transaction_date` datetime NOT NULL,
+  `transaction_amount` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `transaction_currency` varchar(3) NOT NULL DEFAULT 'GBP',
+  `fee_amount` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `fee_currency` varchar(3) NOT NULL DEFAULT 'GBP',
+  `transaction_status` char(1) DEFAULT NULL,
+  `last_updated` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `sale` (
@@ -81,10 +93,18 @@ ALTER TABLE `line`
 
 ALTER TABLE `payment`
   ADD PRIMARY KEY (`line_item_id`);
+  ADD KEY `transaction_transaction_id` (`transaction_id`);
 
 ALTER TABLE `sale`
   ADD PRIMARY KEY (`order_id`),
   ADD UNIQUE KEY `legacy_order_id` (`legacy_order_id`);
+
+ALTER TABLE `transaction`
+  ADD PRIMARY KEY (`transaction_id`),
+  ADD UNIQUE KEY `processor_id` (`processor_id`);
+
+ALTER TABLE `transaction`
+  MODIFY `transaction_id` int(4) NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `fee`
@@ -97,7 +117,8 @@ ALTER TABLE `fulfillment`
   ADD CONSTRAINT `fulfillment_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;
 
 ALTER TABLE `payment`
-  ADD CONSTRAINT `payment_line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `payment_line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON UPDATE CASCADE,
+  ADD CONSTRAINT `transaction_transaction_id` FOREIGN KEY (`transaction_id`) REFERENCES `transaction` (`transaction_id`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
