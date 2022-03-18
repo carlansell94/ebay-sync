@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from core.sales import Sales
 from model.sale import Sale
 from model.line import Line
 from model.payment import Payment
@@ -8,15 +7,23 @@ from model.address import Address
 from model.transaction import Transaction
 from datetime import datetime
 from model.fee import Fee
+from urllib.request import Request, urlopen
+from urllib import parse
+import json
 
 class getSales:
+    scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
+
     def __init__(self, db, credentials):
         self.db = db
         self.credentials = credentials
 
     def fetch(self):
-        sales = Sales(self.credentials)
-        self.sales = sales.get()
+        req = Request('https://api.ebay.com/sell/fulfillment/v1/order')
+        req.add_header('Authorization', 'Bearer '
+                        + self.credentials.getAccessToken(self.scope))
+        content = urlopen(req).read()
+        self.sales = json.loads(content)
         return self
 
     def syncNeeded(self):
