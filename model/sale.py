@@ -48,6 +48,10 @@ class Sale():
     def setStatus(self, value):
         self.status = value
         return self
+    
+    def setFee(self, value):
+        self.fee = value
+        return self
 
     def setLastUpdated(self, value):
         self.last_updated = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
@@ -57,11 +61,12 @@ class Sale():
     def add(self):
         query = self.db.cursor()
         query.execute("""INSERT INTO sale (order_id, legacy_order_id, sale_date,
-                        buyer_username, status, last_updated) VALUES
-                        (%s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE
-                        status=VALUES(status), last_updated=VALUES(last_updated)""",
+                        buyer_username, status, sale_fee last_updated) VALUES
+                        (%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE
+                        status=VALUES(status), sale_fee=VALUES(sale_fee),
+                        last_updated=VALUES(last_updated)""",
                         (self.order_id, self.legacy_order_id, self.sale_date,
-                            self.buyer_username, self.status, self.last_updated
+                            self.buyer_username, self.status, self.fee, self.last_updated
                         )
         )
 

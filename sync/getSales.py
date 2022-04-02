@@ -6,7 +6,6 @@ from model.payment import Payment
 from model.address import Address
 from model.transaction import Transaction
 from datetime import datetime
-from model.fee import Fee
 from urllib.request import Request, urlopen
 from urllib import parse
 import json
@@ -66,12 +65,8 @@ class getSales:
                 self.sale.setSaleDate(sale['creationDate'])
                 self.sale.setBuyerUsername(sale['buyer']['username'])
                 self.sale.setStatus(sale['orderAddressStatus'])
+                self.sale.setFee(sale['totalMarketplaceFee']['value'])
                 self.sale.add()
-                
-                self.fee = Fee(self.db)
-                self.fee.setOrderId(order_id)
-                self.fee.setFinalValueFee(sale['totalMarketplaceFee']['value'])
-                self.fee.addEbayFee()
 
                 for line_items in sale['lineItems']:
                     self.line_item_id = line_items['lineItemId']

@@ -9,11 +9,6 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 
-CREATE TABLE `fee` (
-  `order_id` varchar(26) NOT NULL,
-  `final_value_fee` decimal(4,2) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 CREATE TABLE `feedback` (
   `feedback_id` varchar(13) NOT NULL,
   `legacy_order_id` varchar(255) NOT NULL,
@@ -87,12 +82,10 @@ CREATE TABLE `sale` (
   `sale_date` datetime NOT NULL,
   `buyer_username` varchar(64) NOT NULL,
   `status` set('FULFILLED','IN_PROGRESS','NOT_STARTED','') NOT NULL,
+  `sale_fee` decimal(4,2) UNSIGNED DEFAULT NULL,
   `last_updated` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-
-ALTER TABLE `fee`
-  ADD PRIMARY KEY (`order_id`);
 
 ALTER TABLE `feedback`
   ADD PRIMARY KEY (`feedback_id`),
@@ -128,9 +121,6 @@ ALTER TABLE `transaction`
 ALTER TABLE `transaction`
   MODIFY `transaction_id` int(4) NOT NULL AUTO_INCREMENT;
 
-
-ALTER TABLE `fee`
-  ADD CONSTRAINT `fee_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;
 
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_legacy_order_id` FOREIGN KEY (`legacy_order_id`) REFERENCES `sale` (`legacy_order_id`) ON UPDATE CASCADE;

@@ -43,7 +43,7 @@ class Fulfillment():
 
             query = self.db.cursor()
             query.execute("""INSERT INTO line_fulfillment (fulfillment_id, line_item_id)
-                            VALUES(%s, %s)""",
+                            VALUES(%s, %s) ON DUPLICATE KEY UPDATE fulfillment_id = VALUES(fulfillment_id)""",
                             (self.fulfillment_id, line_item_id))
 
             self.db.commit()
