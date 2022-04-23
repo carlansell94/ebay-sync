@@ -45,6 +45,12 @@ class Transaction():
                             .strftime("%Y-%m-%d %H:%M:%S"))
                                 
         return self
+
+    def getTransactionId(self):
+        if not self.transaction_id:
+            return False
+        
+        return self.transaction_id
         
     def alreadyExists(self):
         query = self.db.cursor()
@@ -55,7 +61,9 @@ class Transaction():
                         (self.processor_id, self.processor_name)
         )
 
-        if not query.fetchone():
+        self.transaction_id = query.fetchone()
+
+        if not self.transaction_id:
             return False
 
         return True           

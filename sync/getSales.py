@@ -101,13 +101,14 @@ class getSales:
                     self.transaction.setFeeAmount(0)
                     self.transaction.setFeeCurrency(sale['pricingSummary']['total']['currency'])
                     self.transaction.setTransactionStatus('S')
-                    
-                    if not self.transaction.alreadyExists():
-                        transaction_id = self.transaction.add()
-                    
+
+                    if self.transaction.alreadyExists():
+                        self.payment.setTransactionId(self.transaction.getTransactionId())
+                    else:
+                        self.payment.setTransactionId(self.transaction.add())
+
                     self.payment.setPaymentDate(payment['paymentDate'])
-                    self.payment.setPaymentStatus(payment['paymentStatus'])        
-                    self.payment.setTransactionId(transaction_id)        
+                    self.payment.setPaymentStatus(payment['paymentStatus'])
                     self.payment.add()
 
                 for shipping in sale['AddressStartInstructions']:

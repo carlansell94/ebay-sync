@@ -47,7 +47,7 @@ class Payment():
                         payment_date, payment_status, currency, item_cost,
                         postage_cost) VALUES (%s, %s, %s, %s, %s, %s, %s)
                         ON DUPLICATE KEY UPDATE payment_status = VALUES(
-                        payment_status), item_cost=VALUES(item_cost)""",
+                        payment_status)""",
                         (self.line_item_id, self.transaction_id,
                             self.payment_date, self.payment_status,
                             self.currency, self.item_cost, self.postage_cost
