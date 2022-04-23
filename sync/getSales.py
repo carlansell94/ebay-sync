@@ -108,7 +108,7 @@ class getSales:
                         self.payment.setTransactionId(self.transaction.add())
 
                     self.payment.setPaymentDate(payment['paymentDate'])
-                    self.payment.setPaymentStatus(payment['paymentStatus'])
+                    self.payment.setPaymentStatus(sale['orderPaymentStatus'])
                     self.payment.add()
 
                 for shipping in sale['AddressStartInstructions']:

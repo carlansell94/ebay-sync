@@ -6,12 +6,6 @@ class Payment():
     def __init__(self, db):
         self.db = db
 
-    def updateStatus(self, value):
-        query = self.db.cursor()
-        query.execute("UPDATE payment SET payment_status = %s WHERE line_item_id = %s",
-                        (value, self.line_item_id)
-        )
-
     def setLineItemId(self, value):
         self.line_item_id = value
         return self
