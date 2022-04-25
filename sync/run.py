@@ -34,9 +34,15 @@ fulfillment = getFulfillment(credentials)
 
 for link in sales.getFulfillmentLinks():
     out = fulfillment.setUri(link).fetch()
+    f = Fulfillment(db)
 
-    if out is not None:
-        f = Fulfillment(db)
+    if out is None:
+        tracking = link.rsplit('/', 1)[1]
+
+        f.setFulfillmentId(tracking)
+        f.setTrackingId(tracking)
+        f.add()
+    else:
         f.setFulfillmentId(out['fulfillmentId'])
         f.setCarrier(out['shippingCarrierCode'])
         f.setTrackingId(out['shipmentTrackingNumber'])

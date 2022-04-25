@@ -29,6 +29,13 @@ class Fulfillment():
 
     def add(self):
         query = self.db.cursor()
+
+        if not hasattr(self, 'carrier'):
+            self.carrier = None
+
+        if not hasattr(self, 'fulfillment_date'):
+            self.fulfillment_date = None
+
         query.execute("""INSERT IGNORE INTO fulfillment (fulfillment_id, carrier,
                         tracking_id, fulfillment_date)
                         VALUES(%s, %s, %s, %s)""",
