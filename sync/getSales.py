@@ -5,6 +5,7 @@ from model.line import Line
 from model.payment import Payment
 from model.address import Address
 from model.transaction import Transaction
+from model.refund import Refund
 from datetime import datetime
 from urllib.request import Request, urlopen
 from urllib import parse
@@ -110,6 +111,19 @@ class getSales:
                     self.payment.setPaymentDate(payment['paymentDate'])
                     self.payment.setPaymentStatus(sale['orderPaymentStatus'])
                     self.payment.add()
+
+                for refund in sale['paymentSummary']['refunds']:
+                    self.refund.setId(refund['refundId'])
+                    self.refund.setDate(refund['refundDate'])
+                    self.refund.setProcessorName('EBAY')
+                    self.refund.setOriginalTransactionId(self.transaction.getTransactionId())
+                    self.refund.setAmount(refund['amount']['value'])
+                    self.refund.setCurrency(refund['amount']['currency'])
+                    self.refund.setFee(0)
+                    self.refund.setFeeCurrency(refund['amount']['currency'])
+
+                    if not self.refund.alreadyExists():
+                        self.refund.add()
 
                 for shipping in sale['AddressStartInstructions']:
                     ship_to = shipping['shippingStep']['shipTo']

@@ -63,6 +63,18 @@ CREATE TABLE `payment` (
   `postage_cost` decimal(6,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `refund` (
+  `refund_id` smallint(5) UNSIGNED NOT NULL,
+  `processor_name` set('PAYPAL','EBAY') NOT NULL DEFAULT 'PAYPAL',
+  `processor_id` varchar(17) NOT NULL,
+  `original_id` varchar(17) NOT NULL,
+  `refund_date` datetime NOT NULL,
+  `refund_amount` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `refund_currency` varchar(3) NOT NULL DEFAULT 'GBP',
+  `fee_refund_amount` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `fee_refund_currency` varchar(3) NOT NULL DEFAULT 'GBP'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `transaction` (
   `transaction_id` int(4) NOT NULL,
   `processor_name` set('PAYPAL','EBAY') NOT NULL DEFAULT 'PAYPAL',
@@ -109,6 +121,10 @@ ALTER TABLE `line_fulfillment`
 ALTER TABLE `payment`
   ADD PRIMARY KEY (`line_item_id`);
   ADD KEY `transaction_transaction_id` (`transaction_id`);
+
+ALTER TABLE `refund`
+  ADD PRIMARY KEY (`refund_id`),
+  ADD UNIQUE KEY `processor_name` (`processor_name`, `processor_id`);
 
 ALTER TABLE `sale`
   ADD PRIMARY KEY (`order_id`),
