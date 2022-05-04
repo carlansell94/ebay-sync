@@ -16,17 +16,14 @@ CREATE TABLE `feedback` (
   `comment` varchar(256) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `address` (
-  `order_id` varchar(26) NOT NULL,
+CREATE TABLE `addresses` (
+  `address_id` smallint(5) UNSIGNED NOT NULL,
   `buyer_name` varchar(64) NOT NULL,
   `address_line_1` varchar(64) NOT NULL,
   `city` varchar(128) NOT NULL,
   `county` varchar(64) NOT NULL,
   `post_code` varchar(9) NOT NULL,
-  `country_code` char(2) NOT NULL,
-  `fulfillment_method` varchar(64) DEFAULT NULL,
-  `fulfillment_cost` decimal(6,2) DEFAULT NULL,
-  `tracking_id` varchar(32) DEFAULT NULL
+  `country_code` char(2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `fulfillment` (
@@ -98,13 +95,19 @@ CREATE TABLE `sale` (
   `last_updated` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `sale_address` (
+  `sale_address_id` smallint(5) UNSIGNED NOT NULL,
+  `order_id` varchar(26) NOT NULL,
+  `address_id` smallint(5) UNSIGNED NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 ALTER TABLE `feedback`
   ADD PRIMARY KEY (`feedback_id`),
   ADD KEY `feedback_legacy_order_id` (`legacy_order_id`);
 
-ALTER TABLE `address`
-  ADD PRIMARY KEY (`order_id`);
+ALTER TABLE `addresses`
+  ADD PRIMARY KEY (`address_id`);
 
 ALTER TABLE `fulfillment`
   ADD PRIMARY KEY (`fulfillment_id`);
@@ -130,6 +133,9 @@ ALTER TABLE `sale`
   ADD PRIMARY KEY (`order_id`),
   ADD UNIQUE KEY `legacy_order_id` (`legacy_order_id`);
 
+ALTER TABLE `sale_address`
+  ADD PRIMARY KEY (`sale_address_id`);
+
 ALTER TABLE `transaction`
   ADD PRIMARY KEY (`transaction_id`),
   ADD UNIQUE KEY `processor_id` (`processor_id`);
@@ -140,9 +146,6 @@ ALTER TABLE `transaction`
 
 ALTER TABLE `feedback`
   ADD CONSTRAINT `feedback_legacy_order_id` FOREIGN KEY (`legacy_order_id`) REFERENCES `sale` (`legacy_order_id`) ON UPDATE CASCADE;
-
-ALTER TABLE `address`
-  ADD CONSTRAINT `fulfillment_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;
 
 ALTER TABLE `line`
   ADD CONSTRAINT `line_order_id` FOREIGN KEY (`order_id`) REFERENCES `sale` (`order_id`) ON UPDATE CASCADE;

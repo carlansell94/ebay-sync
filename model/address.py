@@ -4,6 +4,10 @@ class Address():
     def __init__(self, db):
         self.db = db
 
+    def setId(self, value):
+        self.address_id = value
+        return self
+
     def setOrderId(self, value):
         self.order_id = value
         return self
@@ -32,16 +36,41 @@ class Address():
         self.country_code = value
         return self
 
+    def alreadyExists(self):
+        query = self.db.cursor()
+        query.execute("""SELECT address_id
+                        FROM addresses
+                        WHERE buyer_name = %s
+                        AND address_line_1 = %s
+                        AND post_code = %s""",
+                        (self.buyer_name, self.address_line_1, self.post_code)
+        )
+
+        self.address_id = query.fetchone()
+
+        if not self.address_id:
+            return False
+
+        return True
+
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO addresses (order_id, buyer_name,
+        query.execute("""INSERT INTO addresses (buyer_name,
                         address_line_1, city, county, post_code, country_code)
-                        VALUES(%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY
-                        UPDATE order_id = VALUES(order_id)""",
-                        (self.order_id, self.buyer_name, self.address_line_1,
+                        VALUES(%s, %s, %s, %s, %s, %s)""",
+                        (self.buyer_name, self.address_line_1,
                             self.city, self.county, self.post_code,
                             self.country_code
                         )
         )
 
         self.db.commit()
+
+        return query.lastrowid
+
+    def addOrder(self):
+        query = self.db.cursor()
+        query.execute("""INSERT INTO sale_address (order_id, address_id)
+                        VALUES(%s, %s)""",
+                        (self.order_id, self.address_id)
+        )

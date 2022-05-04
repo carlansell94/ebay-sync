@@ -141,3 +141,8 @@ class getSales:
                     self.address.setCountryCode(ship_to['contactAddress']
                         ['countryCode']
                     )
+
+                    if not self.address.alreadyExists():
+                        self.address.setId(self.address.add())
+
+                    self.address.addOrder()

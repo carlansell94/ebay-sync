@@ -61,7 +61,7 @@ class Sale():
     def add(self):
         query = self.db.cursor()
         query.execute("""INSERT INTO sale (order_id, legacy_order_id, sale_date,
-                        buyer_username, status, sale_fee last_updated) VALUES
+                        buyer_username, status, sale_fee, last_updated) VALUES
                         (%s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE
                         status=VALUES(status), sale_fee=VALUES(sale_fee),
                         last_updated=VALUES(last_updated)""",
