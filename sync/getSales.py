@@ -66,7 +66,7 @@ class getSales:
                 self.sale.setLegacyOrderId(sale['legacyOrderId'])
                 self.sale.setSaleDate(sale['creationDate'])
                 self.sale.setBuyerUsername(sale['buyer']['username'])
-                self.sale.setStatus(sale['orderAddressStatus'])
+                self.sale.setStatus(sale['orderFulfillmentStatus'])
                 self.sale.setFee(sale['totalMarketplaceFee']['value'])
                 self.sale.add()
 
@@ -77,8 +77,8 @@ class getSales:
                     self.line.setTitle(line_items['title'])
                     self.line.setSaleFormat(line_items['soldFormat'])
                     self.line.setQuantity(line_items['quantity'])
-                    self.line.setAddressStatus(line_items
-                        ['lineItemAddressStatus']
+                    self.line.setFulfillmentStatus(line_items
+                        ['lineItemFulfillmentStatus']
                     )
                     self.line.add()
 
@@ -126,7 +126,7 @@ class getSales:
                     if not self.refund.alreadyExists():
                         self.refund.add()
 
-                for shipping in sale['AddressStartInstructions']:
+                for shipping in sale['fulfillmentStartInstructions']:
                     ship_to = shipping['shippingStep']['shipTo']
                     self.address.setBuyerName(ship_to['fullName'])
                     self.address.setAddressLine1(ship_to['contactAddress']
@@ -145,4 +145,3 @@ class getSales:
                     self.address.setCountryCode(ship_to['contactAddress']
                         ['countryCode']
                     )
-                    self.address.add()
