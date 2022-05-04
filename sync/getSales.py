@@ -83,14 +83,10 @@ class getSales:
                     self.line.add()
 
                     self.payment.setLineItemId(self.line_item_id)
-                    self.payment.setCurrency(line_items['lineItemCost']
-                        ['convertedFromCurrency']
-                    )
-                    self.payment.setItemCost(line_items['lineItemCost']
-                        ['convertedFromValue']
-                    )
+                    self.payment.setCurrency(line_items['lineItemCost']['currency'])
+                    self.payment.setItemCost(line_items['lineItemCost']['value'])
                     self.payment.setPostageCost(line_items['deliveryCost']
-                        ['shippingCost']['convertedFromValue']
+                        ['shippingCost']['value']
                     )
 
                 for payment in sale['paymentSummary']['payments']:
