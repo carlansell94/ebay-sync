@@ -54,6 +54,7 @@ class getSales:
             self.payment = Payment(self.db)
             self.address = Address(self.db)
             self.transaction = Transaction(self.db)
+            self.refund = Refund(self.db)
 
             order_id = sale['orderId'].split('!')[0]
             self.sale.setOrderId(order_id)
