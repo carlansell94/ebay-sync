@@ -50,7 +50,7 @@ CREATE TABLE `line_fulfillment` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `payment` (
+CREATE TABLE `payment_items` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
   `transaction_id` int(4) NOT NULL,
   `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
@@ -120,7 +120,7 @@ ALTER TABLE `line_fulfillment`
   ADD UNIQUE KEY `line_item_id` (`line_item_id`),
   ADD KEY `fulfillment-fulfillment_id` (`fulfillment_id`);
 
-ALTER TABLE `payment`
+ALTER TABLE `payment_items`
   ADD PRIMARY KEY (`line_item_id`);
   ADD KEY `transaction_transaction_id` (`transaction_id`);
 
@@ -153,7 +153,7 @@ ALTER TABLE `line_fulfillment`
   ADD CONSTRAINT `fulfillment-fulfillment_id` FOREIGN KEY (`fulfillment_id`) REFERENCES `fulfillment` (`fulfillment_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `line-line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
-ALTER TABLE `payment`
+ALTER TABLE `payment_items`
   ADD CONSTRAINT `payment_line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON UPDATE CASCADE,
   ADD CONSTRAINT `transaction_transaction_id` FOREIGN KEY (`transaction_id`) REFERENCES `transaction` (`transaction_id`) ON UPDATE CASCADE;
 COMMIT;

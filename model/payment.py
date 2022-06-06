@@ -32,7 +32,7 @@ class Payment():
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO payment (line_item_id, transaction_id,
+        query.execute("""INSERT INTO payment_items (line_item_id, transaction_id,
                         payment_status, currency, item_cost, postage_cost)
                         VALUES (%s, %s, %s, %s, %s, %s)
                         ON DUPLICATE KEY UPDATE payment_status = VALUES(
