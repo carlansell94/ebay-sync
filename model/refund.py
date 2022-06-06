@@ -14,8 +14,8 @@ class Refund():
         self.processor_name = value
         return self
     
-    def setOriginalTransactionId(self, value):
-        self.original_transaction_id = value
+    def setOriginalPaymentId(self, value):
+        self.original_payment_id = value
         return self
         
     def setDate(self, value):                            
@@ -49,9 +49,9 @@ class Refund():
                         (self.id, self.processor_name)
         )
 
-        self.transaction_id = query.fetchone()
+        self.payment_id = query.fetchone()
 
-        if not self.transaction_id:
+        if not self.payment_id:
             return False
 
         return True           
@@ -62,7 +62,7 @@ class Refund():
                         refund_date, refund_amount, refund_currency,
                         fee_refund_amount, fee_refund_currency)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                        (self.processor_name, self.id, self.original_transaction_id, self.date,
+                        (self.processor_name, self.id, self.original_payment_id, self.date,
                         self.amount, self.currency, self.fee, self.fee_currency)
         )
 

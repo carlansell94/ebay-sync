@@ -52,7 +52,7 @@ CREATE TABLE `line_fulfillment` (
 
 CREATE TABLE `payment_items` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
-  `transaction_id` int(4) NOT NULL,
+  `payment_id` int(4) NOT NULL,
   `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
   `currency` varchar(3) NOT NULL,
   `item_cost` decimal(6,2) NOT NULL,
@@ -71,17 +71,17 @@ CREATE TABLE `refund` (
   `fee_refund_currency` varchar(3) NOT NULL DEFAULT 'GBP'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE `transaction` (
-  `transaction_id` int(4) NOT NULL,
+CREATE TABLE `payment` (
+  `payment_id` int(4) NOT NULL,
   `order_id` varchar(26) NOT NULL,
   `processor_name` set('PAYPAL','EBAY') NOT NULL DEFAULT 'PAYPAL',
   `processor_id` varchar(17) NOT NULL,
-  `transaction_date` datetime NOT NULL,
-  `transaction_amount` decimal(6,2) NOT NULL DEFAULT 0.00,
-  `transaction_currency` varchar(3) NOT NULL DEFAULT 'GBP',
+  `payment_date` datetime NOT NULL,
+  `payment_amount` decimal(6,2) NOT NULL DEFAULT 0.00,
+  `payment_currency` varchar(3) NOT NULL DEFAULT 'GBP',
   `fee_amount` decimal(5,2) NOT NULL DEFAULT 0.00,
   `fee_currency` varchar(3) NOT NULL DEFAULT 'GBP',
-  `transaction_status` char(1) DEFAULT NULL,
+  `payment_status` char(1) DEFAULT NULL,
   `last_updated` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -123,7 +123,7 @@ ALTER TABLE `line_fulfillment`
 
 ALTER TABLE `payment_items`
   ADD PRIMARY KEY (`line_item_id`);
-  ADD KEY `transaction_transaction_id` (`transaction_id`);
+  ADD KEY `payment_payment_id` (`payment_id`);
 
 ALTER TABLE `refund`
   ADD PRIMARY KEY (`refund_id`),
@@ -136,12 +136,12 @@ ALTER TABLE `sale`
 ALTER TABLE `sale_address`
   ADD PRIMARY KEY (`sale_address_id`);
 
-ALTER TABLE `transaction`
-  ADD PRIMARY KEY (`transaction_id`),
+ALTER TABLE `payment`
+  ADD PRIMARY KEY (`payment_id`),
   ADD UNIQUE KEY `processor_id` (`processor_id`);
 
-ALTER TABLE `transaction`
-  MODIFY `transaction_id` int(4) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `payment`
+  MODIFY `payment_id` int(4) NOT NULL AUTO_INCREMENT;
 
 
 ALTER TABLE `feedback`
@@ -156,7 +156,7 @@ ALTER TABLE `line_fulfillment`
 
 ALTER TABLE `payment_items`
   ADD CONSTRAINT `payment_line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON UPDATE CASCADE,
-  ADD CONSTRAINT `transaction_transaction_id` FOREIGN KEY (`transaction_id`) REFERENCES `transaction` (`transaction_id`) ON UPDATE CASCADE;
+  ADD CONSTRAINT `payment_payment_id` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`) ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

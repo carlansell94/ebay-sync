@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-class Transaction():
+class Payment():
     def __init__(self, db):
         self.db = db
 
@@ -17,84 +17,84 @@ class Transaction():
     def setProcessorId(self, value):
         self.processor_id = value
         return self
-        
-    def setTransactionDate(self, value):                            
-        self.transaction_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
+
+    def setPaymentDate(self, value):                            
+        self.payment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
-                                
+
         return self
-        
-    def setTransactionAmount(self, value):
-        self.transaction_amount = value
+
+    def setPaymentAmount(self, value):
+        self.payment_amount = value
         return self
-    
-    def setTransactionCurrency(self, value):
-        self.transaction_currency = value
+
+    def setPaymentCurrency(self, value):
+        self.payment_currency = value
         return self
-        
+
     def setFeeAmount(self, value):
         self.fee_amount = value
         return self
-        
+
     def setFeeCurrency(self, value):
         self.fee_currency = value
         return self
-        
-    def setTransactionStatus(self, value):
-        self.transaction_status = value
+
+    def setPaymentStatus(self, value):
+        self.payment_status = value
         return self
 
     def setUpdateDate(self, value):
         self.update_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
-                                
+
         return self
 
-    def getTransactionId(self):
-        if not self.transaction_id:
+    def getPaymentId(self):
+        if not self.payment_id:
             return False
-        
-        return self.transaction_id
+
+        return self.payment_id
 
     def addItems(self, items: dict):
         for item in items:
             query = self.db.cursor()
             query.execute("""INSERT INTO payment_items (line_item_id,
-                transaction_id, payment_status, currency, item_cost,
+                payment_id, payment_status, currency, item_cost,
                 postage_cost) VALUES (%s, %s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE payment_status =
                 VALUES(payment_status)""",
-                (item['line_item_id'], self.transaction_id, self.transaction_status,
+                (item['line_item_id'], self.payment_id, self.payment_status,
                 item['currency'], item['cost'], item['postage_cost']))
-            
+
             self.db.commit()
 
     def alreadyExists(self):
         query = self.db.cursor()
         query.execute("""SELECT processor_id, processor_name
-                        FROM transaction
+                        FROM payment
                         WHERE processor_id = %s
                         AND processor_name = %s""",
                         (self.processor_id, self.processor_name)
         )
 
-        self.transaction_id = query.fetchone()
+        self.payment_id = query.fetchone()
 
-        if not self.transaction_id:
+        if not self.payment_id:
             return False
 
         return True           
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO transaction (order_id, processor_name, processor_id,
-                        transaction_date, transaction_amount, transaction_currency,
-                        fee_amount, fee_currency, transaction_status, last_updated)
+        query.execute("""INSERT INTO payment (order_id, processor_name, processor_id,
+                        payment_date, payment_amount, payment_currency,
+                        fee_amount, fee_currency, payment_status, last_updated)
                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                        (self.order_id, self.processor_name, self.processor_id, self.transaction_date,
-                        self.transaction_amount, self.transaction_currency, self.fee_amount,
+                        (self.order_id, self.processor_name, self.processor_id, self.payment_date,
+                        self.payment_amount, self.payment_currency, self.fee_amount,
                         self.fee_currency, 'S', self.update_date)
         )
 
         self.db.commit()
-        self.transaction_id = query.lastrowid
+        self.payment_id = query.lastrowid

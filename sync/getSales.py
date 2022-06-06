@@ -3,7 +3,7 @@
 from model.sale import Sale
 from model.line import Line
 from model.address import Address
-from model.transaction import Transaction
+from model.payment import Payment
 from model.refund import Refund
 from urllib.request import Request, urlopen
 import json
@@ -49,7 +49,7 @@ class getSales:
             self.sale = Sale(self.db)
             self.line = Line(self.db)
             self.address = Address(self.db)
-            self.transaction = Transaction(self.db)
+            self.payment = Payment(self.db)
             self.refund = Refund(self.db)
 
             order_id = sale['orderId'].split('!')[0]
@@ -87,28 +87,28 @@ class getSales:
                     self.line.add()
 
                 for payment in sale['paymentSummary']['payments']:
-                    self.transaction.setProcessorName(payment['paymentMethod'])
-                    self.transaction.setProcessorId(sale['salesRecordReference'])
-                    self.transaction.setTransactionDate(payment['paymentDate'])
-                    self.transaction.setUpdateDate(payment['paymentDate'])
-                    self.transaction.setTransactionAmount(sale['pricingSummary']['total']['value'])
-                    self.transaction.setTransactionCurrency(sale['pricingSummary']['total']['currency'])
-                    self.transaction.setFeeAmount(0)
-                    self.transaction.setFeeCurrency(sale['pricingSummary']['total']['currency'])
-                    self.transaction.setTransactionStatus(sale['orderPaymentStatus'])
-                    self.transaction.setOrderId(order_id)
+                    self.payment.setProcessorName(payment['paymentMethod'])
+                    self.payment.setProcessorId(sale['salesRecordReference'])
+                    self.payment.setPaymentDate(payment['paymentDate'])
+                    self.payment.setUpdateDate(payment['paymentDate'])
+                    self.payment.setPaymentAmount(sale['pricingSummary']['total']['value'])
+                    self.payment.setPaymentCurrency(sale['pricingSummary']['total']['currency'])
+                    self.payment.setFeeAmount(0)
+                    self.payment.setFeeCurrency(sale['pricingSummary']['total']['currency'])
+                    self.payment.setPaymentStatus(sale['orderPaymentStatus'])
+                    self.payment.setOrderId(order_id)
 
-                    if not self.transaction.alreadyExists():
-                        self.transaction.add()
+                    if not self.payment.alreadyExists():
+                        self.payment.add()
                     
-                    self.transaction.addItems(self.items)
+                    self.payment.addItems(self.items)
                         
 
                 for refund in sale['paymentSummary']['refunds']:
                     self.refund.setId(refund['refundId'])
                     self.refund.setDate(refund['refundDate'])
                     self.refund.setProcessorName('EBAY')
-                    self.refund.setOriginalTransactionId(self.transaction.getTransactionId())
+                    self.refund.setOriginalPaymentId(self.payment.getPaymentId())
                     self.refund.setAmount(refund['amount']['value'])
                     self.refund.setCurrency(refund['amount']['currency'])
                     self.refund.setFee(0)
