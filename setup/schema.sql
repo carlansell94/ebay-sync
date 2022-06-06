@@ -73,6 +73,7 @@ CREATE TABLE `refund` (
 
 CREATE TABLE `transaction` (
   `transaction_id` int(4) NOT NULL,
+  `order_id` varchar(26) NOT NULL,
   `processor_name` set('PAYPAL','EBAY') NOT NULL DEFAULT 'PAYPAL',
   `processor_id` varchar(17) NOT NULL,
   `transaction_date` datetime NOT NULL,

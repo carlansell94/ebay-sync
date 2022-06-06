@@ -2,7 +2,6 @@
 
 from model.sale import Sale
 from model.line import Line
-from model.payment import Payment
 from model.address import Address
 from model.transaction import Transaction
 from model.refund import Refund
@@ -49,7 +48,6 @@ class getSales:
         for sale in self.sales['orders']:
             self.sale = Sale(self.db)
             self.line = Line(self.db)
-            self.payment = Payment(self.db)
             self.address = Address(self.db)
             self.transaction = Transaction(self.db)
             self.refund = Refund(self.db)
@@ -68,6 +66,8 @@ class getSales:
                 self.sale.setFee(sale['totalMarketplaceFee']['value'])
                 self.sale.add()
 
+                self.items = []
+
                 for line_items in sale['lineItems']:
                     self.line_item_id = line_items['lineItemId']
                     self.line.setItemId(line_items['legacyItemId'])
@@ -78,14 +78,13 @@ class getSales:
                     self.line.setFulfillmentStatus(line_items
                         ['lineItemFulfillmentStatus']
                     )
+                    self.items.append({
+                        'line_item_id': self.line_item_id,
+                        'currency': line_items['lineItemCost']['currency'],
+                        'cost': line_items['lineItemCost']['value'],
+                        'postage_cost': line_items['deliveryCost']['shippingCost']['value']
+                    })
                     self.line.add()
-
-                    self.payment.setLineItemId(self.line_item_id)
-                    self.payment.setCurrency(line_items['lineItemCost']['currency'])
-                    self.payment.setItemCost(line_items['lineItemCost']['value'])
-                    self.payment.setPostageCost(line_items['deliveryCost']
-                        ['shippingCost']['value']
-                    )
 
                 for payment in sale['paymentSummary']['payments']:
                     self.transaction.setProcessorName(payment['paymentMethod'])
@@ -96,15 +95,14 @@ class getSales:
                     self.transaction.setTransactionCurrency(sale['pricingSummary']['total']['currency'])
                     self.transaction.setFeeAmount(0)
                     self.transaction.setFeeCurrency(sale['pricingSummary']['total']['currency'])
-                    self.transaction.setTransactionStatus('S')
+                    self.transaction.setTransactionStatus(sale['orderPaymentStatus'])
+                    self.transaction.setOrderId(order_id)
 
-                    if self.transaction.alreadyExists():
-                        self.payment.setTransactionId(self.transaction.getTransactionId())
-                    else:
-                        self.payment.setTransactionId(self.transaction.add())
-
-                    self.payment.setPaymentStatus(sale['orderPaymentStatus'])
-                    self.payment.add()
+                    if not self.transaction.alreadyExists():
+                        self.transaction.add()
+                    
+                    self.transaction.addItems(self.items)
+                        
 
                 for refund in sale['paymentSummary']['refunds']:
                     self.refund.setId(refund['refundId'])
