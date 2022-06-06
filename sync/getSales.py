@@ -103,7 +103,6 @@ class getSales:
                     else:
                         self.payment.setTransactionId(self.transaction.add())
 
-                    self.payment.setPaymentDate(payment['paymentDate'])
                     self.payment.setPaymentStatus(sale['orderPaymentStatus'])
                     self.payment.add()
 

@@ -53,7 +53,6 @@ CREATE TABLE `line_fulfillment` (
 CREATE TABLE `payment` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
   `transaction_id` int(4) NOT NULL,
-  `payment_date` datetime NOT NULL,
   `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
   `currency` varchar(3) NOT NULL,
   `item_cost` decimal(6,2) NOT NULL,
