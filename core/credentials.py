@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from urllib.request import Request, urlopen
-from urllib import parse, error
+from urllib import parse
 import urllib
 from os.path import dirname, abspath
 from configparser import ConfigParser

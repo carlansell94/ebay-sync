@@ -5,9 +5,7 @@ import sys
 import re
 sys.path.append("..")
 
-from datetime import datetime, timedelta
 from core.credentials import Credentials
-from model.feedback import Feedback
 from model.sale import Sale
 from model.fulfillment import Fulfillment
 from sync.getSales import getSales

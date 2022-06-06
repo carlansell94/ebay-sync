@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
+
 from datetime import datetime
-import json
 
 class Fulfillment():
     def __init__(self, db):

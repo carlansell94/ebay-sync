@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
+
 from urllib.request import Request, urlopen
-from urllib import parse, error
+from urllib import error
 import json
 
 class getFulfillment():

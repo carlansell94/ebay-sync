@@ -6,9 +6,7 @@ from model.payment import Payment
 from model.address import Address
 from model.transaction import Transaction
 from model.refund import Refund
-from datetime import datetime
 from urllib.request import Request, urlopen
-from urllib import parse
 import json
 
 class getSales:
