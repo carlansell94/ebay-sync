@@ -61,9 +61,7 @@ class Payment():
             query = self.db.cursor()
             query.execute("""INSERT INTO payment_items (line_item_id,
                 payment_id, payment_status, currency, item_cost,
-                postage_cost) VALUES (%s, %s, %s, %s, %s, %s)
-                ON DUPLICATE KEY UPDATE payment_status =
-                VALUES(payment_status)""",
+                postage_cost) VALUES (%s, %s, %s, %s, %s, %s)""",
                 (item['line_item_id'], self.payment_id, self.payment_status,
                 item['currency'], item['cost'], item['postage_cost']))
 
@@ -71,7 +69,7 @@ class Payment():
 
     def alreadyExists(self):
         query = self.db.cursor()
-        query.execute("""SELECT processor_id, processor_name
+        query.execute("""SELECT payment_id
                         FROM payment
                         WHERE processor_id = %s
                         AND processor_name = %s""",
@@ -83,7 +81,19 @@ class Payment():
         if not self.payment_id:
             return False
 
-        return True           
+        return True
+
+    def updateItems(self, items):
+        for item in items:
+            query = self.db.cursor()
+            query.execute("""UPDATE payment_items
+                            SET payment_status = %s
+                            WHERE payment_id = %s
+                            AND line_item_id = %s""",
+                            (self.payment_status, self.payment_id, item['line_item_id'])
+            )
+
+            self.db.commit()
 
     def add(self):
         query = self.db.cursor()

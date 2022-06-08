@@ -23,14 +23,13 @@ class getSales:
         self.sales = json.loads(content)
         return self
 
-    def syncNeeded(self):
-        date = self.sale.last_updated
-        last_updated = self.sale.getLastUpdated()
+    def syncNeeded(self, order_id, api_last_updated) -> bool:
+        db_last_updated = Sale.getLastUpdated(self.db, order_id)
 
-        if last_updated != False:
-            last_updated = last_updated[0][0].strftime("%Y-%m-%d %H:%M:%S")
+        if db_last_updated != False:
+            db_last_updated = db_last_updated[0][0].strftime("%Y-%m-%dT%H:%M:%S.000Z")
 
-        if date == last_updated:
+        if api_last_updated == db_last_updated:
             return False
 
         return True
@@ -44,100 +43,112 @@ class getSales:
 
         return fulfillmentLinks
 
-    def parse(self):
-        for sale in self.sales['orders']:
-            self.sale = Sale(self.db)
-            self.line = Line(self.db)
-            self.address = Address(self.db)
-            self.payment = Payment(self.db)
-            self.refund = Refund(self.db)
+    def parse(self) -> None:
+        for order in self.sales['orders']:
+            order_id = order['orderId'].split('!')[0]
+            order_items = []
 
-            order_id = sale['orderId'].split('!')[0]
-            self.sale.setOrderId(order_id)
-            self.line.setOrderId(order_id)
-            self.address.setOrderId(order_id)
-            self.sale.setLastUpdated(sale['lastModifiedDate'])
+            if self.syncNeeded(order_id, order['lastModifiedDate']):
+                self.parseOrder(order)
 
-            if self.syncNeeded():
-                self.sale.setLegacyOrderId(sale['legacyOrderId'])
-                self.sale.setSaleDate(sale['creationDate'])
-                self.sale.setBuyerUsername(sale['buyer']['username'])
-                self.sale.setStatus(sale['orderFulfillmentStatus'])
-                self.sale.setFee(sale['totalMarketplaceFee']['value'])
-                self.sale.add()
+                for line_item in order['lineItems']:
+                    item_payment_info = self.parseLineItem(order_id, line_item)
+                    order_items.append(item_payment_info)
 
-                self.items = []
+                for payment in order['paymentSummary']['payments']:
+                    payment_id = self.parsePayment(order, payment, order_items)
 
-                for line_items in sale['lineItems']:
-                    self.line_item_id = line_items['lineItemId']
-                    self.line.setItemId(line_items['legacyItemId'])
-                    self.line.setLineItemId(self.line_item_id)
-                    self.line.setTitle(line_items['title'])
-                    self.line.setSaleFormat(line_items['soldFormat'])
-                    self.line.setQuantity(line_items['quantity'])
-                    self.line.setFulfillmentStatus(line_items
-                        ['lineItemFulfillmentStatus']
-                    )
-                    self.items.append({
-                        'line_item_id': self.line_item_id,
-                        'currency': line_items['lineItemCost']['currency'],
-                        'cost': line_items['lineItemCost']['value'],
-                        'postage_cost': line_items['deliveryCost']['shippingCost']['value']
-                    })
-                    self.line.add()
+                for address in order['fulfillmentStartInstructions']:
+                    self.parseAddress(order_id, address)
 
-                for payment in sale['paymentSummary']['payments']:
-                    self.payment.setProcessorName(payment['paymentMethod'])
-                    self.payment.setProcessorId(sale['salesRecordReference'])
-                    self.payment.setPaymentDate(payment['paymentDate'])
-                    self.payment.setUpdateDate(payment['paymentDate'])
-                    self.payment.setPaymentAmount(sale['pricingSummary']['total']['value'])
-                    self.payment.setPaymentCurrency(sale['pricingSummary']['total']['currency'])
-                    self.payment.setFeeAmount(0)
-                    self.payment.setFeeCurrency(sale['pricingSummary']['total']['currency'])
-                    self.payment.setPaymentStatus(sale['orderPaymentStatus'])
-                    self.payment.setOrderId(order_id)
+                for refund in order['paymentSummary']['refunds']:
+                    self.parseRefund(payment_id, refund)
 
-                    if not self.payment.alreadyExists():
-                        self.payment.add()
-                    
-                    self.payment.addItems(self.items)
-                        
+    def parseOrder(self, order) -> None:
+        m_order = Sale(self.db)
+        m_order.setOrderId(order['orderId'].split('!')[0])
+        m_order.setLegacyOrderId(order['legacyOrderId'])
+        m_order.setSaleDate(order['creationDate'])
+        m_order.setBuyerUsername(order['buyer']['username'])
+        m_order.setStatus(order['orderFulfillmentStatus'])
+        m_order.setFee(order['totalMarketplaceFee']['value'])
+        m_order.setLastUpdated(order['lastModifiedDate'])
+        m_order.add()
 
-                for refund in sale['paymentSummary']['refunds']:
-                    self.refund.setId(refund['refundId'])
-                    self.refund.setDate(refund['refundDate'])
-                    self.refund.setProcessorName('EBAY')
-                    self.refund.setOriginalPaymentId(self.payment.getPaymentId())
-                    self.refund.setAmount(refund['amount']['value'])
-                    self.refund.setCurrency(refund['amount']['currency'])
-                    self.refund.setFee(0)
-                    self.refund.setFeeCurrency(refund['amount']['currency'])
+    def parseLineItem(self, order_id, line_item) -> dict:
+        m_line_item = Line(self.db)
+        m_line_item.setOrderId(order_id)
+        m_line_item.setItemId(line_item['legacyItemId'])
+        m_line_item.setLineItemId(line_item['lineItemId'])
+        m_line_item.setTitle(line_item['title'])
+        m_line_item.setSaleFormat(line_item['soldFormat'])
+        m_line_item.setQuantity(line_item['quantity'])
+        m_line_item.setFulfillmentStatus(line_item['lineItemFulfillmentStatus'])
+        m_line_item.add()
 
-                    if not self.refund.alreadyExists():
-                        self.refund.add()
+        payment_info = {
+            'line_item_id': line_item['lineItemId'],
+            'currency': line_item['lineItemCost']['currency'],
+            'cost': line_item['lineItemCost']['value'],
+            'postage_cost': line_item['deliveryCost']['shippingCost']['value']
+        }
 
-                for shipping in sale['fulfillmentStartInstructions']:
-                    ship_to = shipping['shippingStep']['shipTo']
-                    self.address.setBuyerName(ship_to['fullName'])
-                    self.address.setAddressLine1(ship_to['contactAddress']
-                        ['addressLine1']
-                    )
-                    self.address.setCity(ship_to['contactAddress']['city'])
+        return payment_info
 
-                    try:
-                        self.address.setCounty(ship_to['contactAddress']['stateOrProvince'])
-                    except KeyError:
-                        self.address.setCounty("")
+    def parsePayment(self, order, payment, items) -> int:
+        m_payment = Payment(self.db)
 
-                    self.address.setPostCode(ship_to['contactAddress']
-                        ['postalCode']
-                    )
-                    self.address.setCountryCode(ship_to['contactAddress']
-                        ['countryCode']
-                    )
+        m_payment.setProcessorId(order['salesRecordReference'])
+        m_payment.setProcessorName(payment['paymentMethod'])
+        m_payment.setPaymentStatus(order['orderPaymentStatus'])
 
-                    if not self.address.alreadyExists():
-                        self.address.setId(self.address.add())
+        if not m_payment.alreadyExists():
+            m_payment.setOrderId(order['orderId'].split('!')[0])
+            m_payment.setPaymentDate(payment['paymentDate'])
+            m_payment.setUpdateDate(payment['paymentDate'])
+            m_payment.setPaymentAmount(order['pricingSummary']['total']['value'])
+            m_payment.setPaymentCurrency(order['pricingSummary']['total']['currency'])
+            m_payment.setFeeAmount(0)
+            m_payment.setFeeCurrency(order['pricingSummary']['total']['currency'])
+            payment_id = m_payment.add()
+            m_payment.addItems(items)
+        else:
+            payment_id = m_payment.getPaymentId()
+            m_payment.updateItems(items)
 
-                    self.address.addOrder()
+        return payment_id
+
+    def parseAddress(self, order_id, address) -> None:
+        address = address['shippingStep']['shipTo']
+        m_address = Address(self.db)
+        m_address.setOrderId(order_id)
+        m_address.setBuyerName(address['fullName'])
+        m_address.setAddressLine1(address['contactAddress']['addressLine1'])
+        m_address.setCity(address['contactAddress']['city'])
+
+        try:
+            m_address.setCounty(address['contactAddress']['stateOrProvince'])
+        except KeyError:
+            m_address.setCounty("")
+
+        m_address.setPostCode(address['contactAddress']['postalCode'])
+        m_address.setCountryCode(address['contactAddress']['countryCode'])
+
+        if not m_address.alreadyExists():
+            m_address.setId(m_address.add())
+
+        m_address.addOrder()
+
+    def parseRefund(self, payment_id, refund) -> None:
+        m_refund = Refund(self.db)
+        m_refund.setId(refund['refundId'])
+        m_refund.setProcessorName('EBAY')
+
+        if not m_refund.alreadyExists():
+            m_refund.setDate(refund['refundDate'])
+            m_refund.setOriginalPaymentId(payment_id)
+            m_refund.setAmount(refund['amount']['value'])
+            m_refund.setCurrency(refund['amount']['currency'])
+            m_refund.setFee(0)
+            m_refund.setFeeCurrency(refund['amount']['currency'])
+            m_refund.add()

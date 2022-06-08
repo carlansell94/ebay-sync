@@ -61,7 +61,7 @@ class Refund():
         query.execute("""INSERT INTO refund (processor_name, processor_id, original_id,
                         refund_date, refund_amount, refund_currency,
                         fee_refund_amount, fee_refund_currency)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
                         (self.processor_name, self.id, self.original_payment_id, self.date,
                         self.amount, self.currency, self.fee, self.fee_currency)
         )

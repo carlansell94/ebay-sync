@@ -11,17 +11,6 @@ class Sale():
         query.execute("SELECT legacy_order_id FROM sale")
         return query.fetchall()
 
-    def getLastUpdated(self):
-        query = self.db.cursor()
-        query.execute("SELECT last_updated FROM sale WHERE order_id = %s",
-                        (self.order_id,)
-        )
-
-        if query.rowcount == 0:
-            return False
-
-        return query.fetchall()
-
     def updateStatus(self, value):
         query = self.db.cursor()
         query.execute("UPDATE sale SET status = %s WHERE order_id = %s",
@@ -48,7 +37,7 @@ class Sale():
     def setStatus(self, value):
         self.status = value
         return self
-    
+
     def setFee(self, value):
         self.fee = value
         return self
@@ -71,3 +60,13 @@ class Sale():
         )
 
         self.db.commit()
+
+    @staticmethod
+    def getLastUpdated(db, order_id):
+        query = db.cursor()
+        query.execute(f"SELECT last_updated FROM sale WHERE order_id = '{order_id}'")
+
+        if query.rowcount == 0:
+            return False
+
+        return query.fetchall()
