@@ -1,26 +1,26 @@
 #!/usr/bin/env python3
 
 class Feedback():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db
 
-    def setLegacyOrderId(self, value):
+    def setLegacyOrderId(self, value: str):
         self.legacy_order_id = value
         return self
 
-    def setFeedbackId(self, value):
+    def setFeedbackId(self, value: int):
         self.feedback_id = value
         return self
 
-    def setFeedbackType(self, value):
+    def setFeedbackType(self, value: str):
         self.feedback_type = value
         return self
 
-    def setComment(self, value):
+    def setComment(self, value: str):
         self.comment = value.encode("utf-8")
         return self
 
-    def add(self):
+    def add(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO feedback (

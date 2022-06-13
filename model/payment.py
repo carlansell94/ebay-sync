@@ -3,22 +3,22 @@
 from datetime import datetime
 
 class Payment():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db
 
-    def setOrderId(self, value):
+    def setOrderId(self, value: str):
         self.order_id = value
         return self 
 
-    def setProcessorName(self, value):
+    def setProcessorName(self, value: str):
         self.processor_name = value
         return self
 
-    def setProcessorId(self, value):
+    def setProcessorId(self, value: str):
         self.processor_id = value
         return self
 
-    def setPaymentDate(self, value):                            
+    def setPaymentDate(self, value: str):                            
         self.payment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
 
@@ -28,7 +28,7 @@ class Payment():
         self.payment_amount = value
         return self
 
-    def setPaymentCurrency(self, value):
+    def setPaymentCurrency(self, value: str):
         self.payment_currency = value
         return self
 
@@ -36,27 +36,27 @@ class Payment():
         self.fee_amount = value
         return self
 
-    def setFeeCurrency(self, value):
+    def setFeeCurrency(self, value: str):
         self.fee_currency = value
         return self
 
-    def setPaymentStatus(self, value):
+    def setPaymentStatus(self, value: str):
         self.payment_status = value
         return self
 
-    def setUpdateDate(self, value):
+    def setUpdateDate(self, value: str):
         self.update_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
 
         return self
 
-    def getPaymentId(self):
+    def getPaymentId(self) -> int:
         if not self.payment_id:
             return False
 
         return self.payment_id
 
-    def addItems(self, items: dict):
+    def addItems(self, items: dict) -> None:
         for item in items:
             query = self.db.cursor()
             query.execute("""
@@ -86,7 +86,7 @@ class Payment():
 
             self.db.commit()
 
-    def alreadyExists(self):
+    def alreadyExists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT payment_id
@@ -105,7 +105,7 @@ class Payment():
 
         return True
 
-    def updateItems(self, items):
+    def updateItems(self, items: dict) -> None:
         for item in items:
             query = self.db.cursor()
             query.execute("""
@@ -121,7 +121,7 @@ class Payment():
 
             self.db.commit()
 
-    def add(self):
+    def add(self) -> int:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO payment (

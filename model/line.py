@@ -1,38 +1,38 @@
 #!/usr/bin/env python3
 
 class Line():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db
 
-    def setOrderId(self, value):
+    def setOrderId(self, value: str):
         self.order_id = value
         return self
 
-    def setItemId(self, value):
+    def setItemId(self, value: int):
         self.item_id = value
         return self
 
-    def setLineItemId(self, value):
+    def setLineItemId(self, value: int):
         self.line_item_id = value
         return self
 
-    def setTitle(self, value):
+    def setTitle(self, value: str):
         self.title = value
         return self
 
-    def setSaleFormat(self, value):
+    def setSaleFormat(self, value: str):
         self.sale_format = value
         return self
 
-    def setQuantity(self, value):
+    def setQuantity(self, value: int):
         self.quantity = value
         return self
 
-    def setFulfillmentStatus(self, value):
+    def setFulfillmentStatus(self, value: str):
         self.fulfillment_status = value
         return self
 
-    def add(self):
+    def add(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO line (

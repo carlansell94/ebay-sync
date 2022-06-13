@@ -3,7 +3,7 @@
 from datetime import datetime
 
 class Sale():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db
 
     def getLegacyOrderIds(self):
@@ -11,7 +11,7 @@ class Sale():
         query.execute("SELECT legacy_order_id FROM sale")
         return query.fetchall()
 
-    def updateStatus(self, value):
+    def updateStatus(self, value: str) -> None:
         query = self.db.cursor()
         query.execute("""
             UPDATE sale
@@ -22,24 +22,24 @@ class Sale():
             'order_id': self.order_id
         })
 
-    def setOrderId(self, value):
+    def setOrderId(self, value: str):
         self.order_id = value
         return self
 
-    def setLegacyOrderId(self, value):
+    def setLegacyOrderId(self, value: str):
         self.legacy_order_id = value
         return self
 
-    def setSaleDate(self, value):
+    def setSaleDate(self, value: str):
         self.sale_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
         return self
 
-    def setBuyerUsername(self, value):
+    def setBuyerUsername(self, value: str):
         self.buyer_username = value
         return self
 
-    def setStatus(self, value):
+    def setStatus(self, value: str):
         self.status = value
         return self
 
@@ -47,12 +47,12 @@ class Sale():
         self.fee = value
         return self
 
-    def setLastUpdated(self, value):
+    def setLastUpdated(self, value: str):
         self.last_updated = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                                 .strftime("%Y-%m-%d %H:%M:%S"))
         return self
 
-    def add(self):
+    def add(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO sale (
@@ -88,7 +88,7 @@ class Sale():
         self.db.commit()
 
     @staticmethod
-    def getLastUpdated(db, order_id):
+    def getLastUpdated(db, order_id: str):
         query = db.cursor()
         query.execute("""SELECT
             last_updated

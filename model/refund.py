@@ -3,22 +3,22 @@
 from datetime import datetime
 
 class Refund():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db      
 
-    def setId(self, value):
+    def setId(self, value: int):
         self.id = value
         return self
 
-    def setProcessorName(self, value):
+    def setProcessorName(self, value: str):
         self.processor_name = value
         return self
 
-    def setOriginalPaymentId(self, value):
+    def setOriginalPaymentId(self, value: int):
         self.original_payment_id = value
         return self
 
-    def setDate(self, value):                            
+    def setDate(self, value: str):                            
         self.date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                         .strftime("%Y-%m-%d %H:%M:%S"))
                                 
@@ -28,7 +28,7 @@ class Refund():
         self.amount = value
         return self
 
-    def setCurrency(self, value):
+    def setCurrency(self, value: str):
         self.currency = value
         return self
 
@@ -36,11 +36,11 @@ class Refund():
         self.fee = value
         return self
 
-    def setFeeCurrency(self, value):
+    def setFeeCurrency(self, value: str):
         self.fee_currency = value
         return self
 
-    def alreadyExists(self):
+    def alreadyExists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT
@@ -61,7 +61,7 @@ class Refund():
 
         return True           
 
-    def add(self):
+    def add(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO refund (

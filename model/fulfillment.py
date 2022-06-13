@@ -3,31 +3,31 @@
 from datetime import datetime
 
 class Fulfillment():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db
 
-    def setFulfillmentId(self, value):
+    def setFulfillmentId(self, value: int):
         self.fulfillment_id = value
         return self
 
-    def setCarrier(self, value):
+    def setCarrier(self, value: str):
         self.carrier = value
         return self
 
-    def setTrackingId(self, value):
+    def setTrackingId(self, value: str):
         self.tracking_id = value
         return self
 
-    def setFulfillmentDate(self, value):
+    def setFulfillmentDate(self, value: str):
         self.fulfillment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
         return self
 
-    def setLineItemIds(self, value):
+    def setLineItemIds(self, value: dict):
         self.line_item_ids = value
         return self
 
-    def add(self):
+    def add(self) -> None:
         query = self.db.cursor()
 
         if not hasattr(self, 'carrier'):
@@ -57,7 +57,7 @@ class Fulfillment():
 
         self.db.commit()
 
-    def addLineItems(self):
+    def addLineItems(self) -> None:
         for item in self.line_item_ids:
             line_item_id = item['lineItemId']
 

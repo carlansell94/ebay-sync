@@ -1,42 +1,42 @@
 #!/usr/bin/env python3
 
 class Address():
-    def __init__(self, db):
+    def __init__(self, db) -> None:
         self.db = db
 
-    def setId(self, value):
+    def setId(self, value: int):
         self.address_id = value
         return self
 
-    def setOrderId(self, value):
+    def setOrderId(self, value: str):
         self.order_id = value
         return self
 
-    def setBuyerName(self, value):
+    def setBuyerName(self, value: str):
         self.buyer_name = value
         return self
 
-    def setAddressLine1(self, value):
+    def setAddressLine1(self, value: str):
         self.address_line_1 = value
         return self
 
-    def setCity(self, value):
+    def setCity(self, value: str):
         self.city = value
         return self
 
-    def setCounty(self, value):
+    def setCounty(self, value: str):
         self.county = value
         return self
 
-    def setPostCode(self, value):
+    def setPostCode(self, value: str):
         self.post_code = value
         return self
 
-    def setCountryCode(self, value):
+    def setCountryCode(self, value: str):
         self.country_code = value
         return self
 
-    def alreadyExists(self):
+    def alreadyExists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT address_id
@@ -59,7 +59,7 @@ class Address():
 
         return True
 
-    def add(self):
+    def add(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO addresses (
@@ -90,7 +90,7 @@ class Address():
 
         return query.lastrowid
 
-    def addOrder(self):
+    def addOrder(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO sale_address (
