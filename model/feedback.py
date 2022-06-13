@@ -22,13 +22,25 @@ class Feedback():
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO feedback (feedback_id, legacy_order_id,
-                        feedback_type, comment) VALUES (%s, %s, %s, %s)
-                        ON DUPLICATE KEY UPDATE feedback_type=
-                        VALUES(feedback_type), comment=VALUES(comment)""",
-                        (self.feedback_id, self.legacy_order_id,
-                            self.feedback_type, self.comment
-                        )
-        )
+        query.execute("""
+            INSERT INTO feedback (
+                feedback_id,
+                legacy_order_id,
+                feedback_type,
+                comment
+            ) VALUES (
+                %(feedback_id)s, 
+                %(legacy_order_id)s,
+                %(feedback_type)s,
+                %(comment)s
+            ) ON DUPLICATE KEY UPDATE
+                feedback_type=VALUES(feedback_type),
+                comment=VALUES(comment)
+        """, {
+            'feedback_id': self.feedback_id, 
+            'legacy_order_id': self.legacy_order_id,
+            'feedback_type': self.feedback_type,
+            'comment': self.comment
+        })
 
         self.db.commit()

@@ -38,31 +38,53 @@ class Address():
 
     def alreadyExists(self):
         query = self.db.cursor()
-        query.execute("""SELECT address_id
-                        FROM addresses
-                        WHERE buyer_name = %s
-                        AND address_line_1 = %s
-                        AND post_code = %s""",
-                        (self.buyer_name, self.address_line_1, self.post_code)
-        )
+        query.execute("""
+            SELECT address_id
+            FROM addresses
+            WHERE buyer_name = %(buyer_name)s
+            AND address_line_1 = %(address_line_1)s
+            AND post_code = %(post_code)s
+        """, {
+            'buyer_name': self.buyer_name,
+            'address_line_1': self.address_line_1,
+            'post_code': self.post_code
+        })
 
-        self.address_id = query.fetchone()
+        address_id = query.fetchone()
 
-        if not self.address_id:
+        if not address_id:
             return False
+        else:
+            self.address_id = address_id[0]
 
         return True
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO addresses (buyer_name,
-                        address_line_1, city, county, post_code, country_code)
-                        VALUES(%s, %s, %s, %s, %s, %s)""",
-                        (self.buyer_name, self.address_line_1,
-                            self.city, self.county, self.post_code,
-                            self.country_code
-                        )
-        )
+        query.execute("""
+            INSERT INTO addresses (
+                buyer_name,
+                address_line_1,
+                city,
+                county,
+                post_code,
+                country_code
+            ) VALUES (
+                %(buyer_name)s,
+                %(address_line_1)s,
+                %(city)s,
+                %(county)s,
+                %(post_code)s,
+                %(country_code)s
+            )
+        """, {
+            'buyer_name': self.buyer_name,
+            'address_line_1': self.address_line_1,
+            'city': self.city,
+            'county': self.county,
+            'post_code': self.post_code,
+            'country_code': self.country_code
+        })
 
         self.db.commit()
 
@@ -70,7 +92,15 @@ class Address():
 
     def addOrder(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO sale_address (order_id, address_id)
-                        VALUES(%s, %s)""",
-                        (self.order_id, self.address_id)
-        )
+        query.execute("""
+            INSERT INTO sale_address (
+                order_id,
+                address_id
+            ) VALUES (
+                %(order_id)s,
+                %(address_id)s
+            )
+        """, {
+            'order_id': self.order_id,
+            'address_id': self.address_id
+        })

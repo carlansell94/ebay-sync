@@ -36,11 +36,24 @@ class Fulfillment():
         if not hasattr(self, 'fulfillment_date'):
             self.fulfillment_date = None
 
-        query.execute("""INSERT IGNORE INTO fulfillment (fulfillment_id, carrier,
-                        tracking_id, fulfillment_date)
-                        VALUES(%s, %s, %s, %s)""",
-                        (self.fulfillment_id, self.carrier, self.tracking_id, self.fulfillment_date)
-        )
+        query.execute("""
+            INSERT IGNORE INTO fulfillment (
+                fulfillment_id,
+                carrier,
+                tracking_id,
+                fulfillment_date
+            ) VALUES (
+                %(fulfillment_id)s,
+                %(carrier)s,
+                %(tracking_id)s,
+                %(fulfillment_date)s
+            )
+        """, {
+            'fulfillment_id': self.fulfillment_id,
+            'carrier': self.carrier,
+            'tracking_id': self.tracking_id,
+            'fulfillment_date': self.fulfillment_date
+        })
 
         self.db.commit()
 
@@ -49,8 +62,18 @@ class Fulfillment():
             line_item_id = item['lineItemId']
 
             query = self.db.cursor()
-            query.execute("""INSERT INTO line_fulfillment (fulfillment_id, line_item_id)
-                            VALUES(%s, %s) ON DUPLICATE KEY UPDATE fulfillment_id = VALUES(fulfillment_id)""",
-                            (self.fulfillment_id, line_item_id))
+            query.execute("""
+                INSERT INTO line_fulfillment (
+                    fulfillment_id,
+                    line_item_id
+                ) VALUES (
+                    %(fulfillment_id)s,
+                    %(line_item_id)s
+                ) ON DUPLICATE KEY UPDATE
+                    fulfillment_id = VALUES(fulfillment_id)
+            """, {
+                'fulfillment_id': self.fulfillment_id,
+                'line_item_id': line_item_id
+            })
 
             self.db.commit()

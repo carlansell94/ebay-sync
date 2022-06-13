@@ -59,22 +59,44 @@ class Payment():
     def addItems(self, items: dict):
         for item in items:
             query = self.db.cursor()
-            query.execute("""INSERT INTO payment_items (line_item_id,
-                payment_id, payment_status, currency, item_cost,
-                postage_cost) VALUES (%s, %s, %s, %s, %s, %s)""",
-                (item['line_item_id'], self.payment_id, self.payment_status,
-                item['currency'], item['cost'], item['postage_cost']))
+            query.execute("""
+                INSERT INTO payment_items (
+                    line_item_id,
+                    payment_id,
+                    payment_status,
+                    currency,
+                    item_cost,
+                    postage_cost
+                ) VALUES (
+                    %(line_item_id)s,
+                    %(payment_id)s,
+                    %(payment_status)s,
+                    %(currency)s,
+                    %(cost)s,
+                    %(postage_cost)s
+                )
+            """, {
+                'line_item_id': item['line_item_id'],
+                'payment_id': self.payment_id,
+                'payment_status': self.payment_status,
+                'currency': item['currency'],
+                'cost': item['cost'],
+                'postage_cost': item['postage_cost']
+            })
 
             self.db.commit()
 
     def alreadyExists(self):
         query = self.db.cursor()
-        query.execute("""SELECT payment_id
-                        FROM payment
-                        WHERE processor_id = %s
-                        AND processor_name = %s""",
-                        (self.processor_id, self.processor_name)
-        )
+        query.execute("""
+            SELECT payment_id
+            FROM payment
+            WHERE processor_id = %(processor_id)s
+            AND processor_name = %(processor_name)s
+        """, {
+            'processor_id': self.processor_id,
+            'processor_name': self.processor_name
+        })
 
         self.payment_id = query.fetchone()
 
@@ -86,25 +108,56 @@ class Payment():
     def updateItems(self, items):
         for item in items:
             query = self.db.cursor()
-            query.execute("""UPDATE payment_items
-                            SET payment_status = %s
-                            WHERE payment_id = %s
-                            AND line_item_id = %s""",
-                            (self.payment_status, self.payment_id, item['line_item_id'])
-            )
+            query.execute("""
+                UPDATE payment_items
+                SET payment_status = %(payment_status)s
+                WHERE payment_id = %(payment_id)s
+                AND line_item_id = %(line_item_id)s
+            """, {
+                'payment_status': self.payment_status,
+                'payment_id': self.payment_id,
+                'line_item_id': item['line_item_id']
+            })
 
             self.db.commit()
 
     def add(self):
         query = self.db.cursor()
-        query.execute("""INSERT INTO payment (order_id, processor_name, processor_id,
-                        payment_date, payment_amount, payment_currency,
-                        fee_amount, fee_currency, payment_status, last_updated)
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-                        (self.order_id, self.processor_name, self.processor_id, self.payment_date,
-                        self.payment_amount, self.payment_currency, self.fee_amount,
-                        self.fee_currency, 'S', self.update_date)
-        )
+        query.execute("""
+            INSERT INTO payment (
+                order_id,
+                processor_name,
+                processor_id,
+                payment_date,
+                payment_amount,
+                payment_currency,
+                fee_amount,
+                fee_currency,
+                payment_status,
+                last_updated
+            ) VALUES (
+                %(order_id)s,
+                %(processor_name)s,
+                %(processor_id)s,
+                %(payment_date)s,
+                %(payment_amount)s,
+                %(payment_currency)s,
+                %(fee_amount)s,
+                %(fee_currency)s,
+                'S',
+                %(update_date)s
+            )
+        """, {
+            'order_id': self.order_id,
+            'processor_name': self.processor_name,
+            'processor_id': self.processor_id,
+            'payment_date': self.payment_date,
+            'payment_amount': self.payment_amount,
+            'payment_currency': self.payment_currency,
+            'fee_amount': self.fee_amount,
+            'fee_currency': self.fee_currency,
+            'update_date': self.update_date
+        })
 
         self.db.commit()
         self.payment_id = query.lastrowid
