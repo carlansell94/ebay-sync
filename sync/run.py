@@ -13,8 +13,13 @@ from sync.getFeedback import getFeedback
 from sync.getFulfillment import getFulfillment
 
 credentials = Credentials()
-db = MySQLdb.connect(db=credentials.db_name, user=credentials.db_user,
-                        passwd=credentials.db_password)
+
+if not credentials.readConfigFile():
+    print("Error reading config file")
+    exit()
+
+db = MySQLdb.connect(db=credentials.client_name, user=credentials.client_user,
+                        passwd=credentials.client_password)
 
 # Get sales
 sales = getSales(db, credentials)

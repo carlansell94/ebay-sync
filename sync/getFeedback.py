@@ -25,7 +25,7 @@ class getFeedback:
         )
 
         req = XMLRequest()
-        res = req.getRequest('GetFeedback', args)
+        res = req.getRequest('GetFeedback', self.credentials, args)
         root = ET.fromstring(res)
 
         feedback = Feedback(self.db)
