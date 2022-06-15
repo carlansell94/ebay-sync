@@ -110,7 +110,9 @@ class getSales:
             m_payment.setPaymentCurrency(order['pricingSummary']['total']['currency'])
             m_payment.setFeeAmount(0)
             m_payment.setFeeCurrency(order['pricingSummary']['total']['currency'])
-            payment_id = m_payment.add()
+            m_payment.add()
+
+            payment_id = m_payment.getPaymentId()
             m_payment.addItems(items)
         else:
             payment_id = m_payment.getPaymentId()
