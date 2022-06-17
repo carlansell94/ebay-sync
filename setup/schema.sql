@@ -8,6 +8,23 @@ SET time_zone = "+00:00";
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
 
+/* DROP EXISTING TABLES */;
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS `sale`;
+DROP TABLE IF EXISTS `addresses`;
+DROP TABLE IF EXISTS `sale_address`;
+DROP TABLE IF EXISTS `line`;
+DROP TABLE IF EXISTS `fulfillment`;
+DROP TABLE IF EXISTS `line_fulfillment`;
+DROP TABLE IF EXISTS `payment`;
+DROP TABLE IF EXISTS `payment_items`;
+DROP TABLE IF EXISTS `feedback`;
+DROP TABLE IF EXISTS `refund`;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
+/* CREATE TABLES */;
 CREATE TABLE `sale` (
   `order_id` varchar(26) NOT NULL,
   `legacy_order_id` varchar(26) NOT NULL,
