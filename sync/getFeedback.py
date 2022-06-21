@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import xml.etree.ElementTree as ET
-from core.xmlrequest import XMLRequest
+from core.ebayapi import ebayAPI
 from model.feedback import Feedback
 
 class getFeedback:
@@ -24,9 +24,8 @@ class getFeedback:
                 + '</OutputSelector><OutputSelector>FeedbackID</OutputSelector>'
         )
 
-        req = XMLRequest()
-        res = req.getRequest('GetFeedback', self.credentials, args)
-        root = ET.fromstring(res)
+        content = ebayAPI.getXMLContent('GetFeedback', self.credentials, args)
+        root = ET.fromstring(content)
 
         feedback = Feedback(self.db)
         feedback.setLegacyOrderId(order_id)

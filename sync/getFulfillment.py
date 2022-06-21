@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-from urllib.request import Request, urlopen
-from urllib import error
-import json
+from core.ebayapi import ebayAPI
 
 class getFulfillment():
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
@@ -15,13 +13,7 @@ class getFulfillment():
         return self
 
     def fetch(self):
-        req = Request(self.uri)
-        req.add_header('Authorization', 'Bearer '
-                        + self.credentials.getAccessToken(self.scope))
-        
-        try:
-            content = urlopen(req).read()
-            response = json.loads(content)
-            return response
-        except error.HTTPError as e:
-            body = e.read().decode()
+        oauth_token = self.credentials.getOauthToken()
+        access_token = ebayAPI.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
+        content = ebayAPI.getRESTContent(self.uri, access_token)
+        return content

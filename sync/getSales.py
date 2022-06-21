@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
+from core.ebayapi import ebayAPI
 from model.sale import Sale
 from model.line import Line
 from model.address import Address
 from model.payment import Payment
 from model.refund import Refund
-from urllib.request import Request, urlopen
-import json
 
 class getSales:
+    endpoint = 'https://api.ebay.com/sell/fulfillment/v1/order'
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 
     def __init__(self, db, credentials):
@@ -16,11 +16,9 @@ class getSales:
         self.credentials = credentials
 
     def fetch(self):
-        req = Request('https://api.ebay.com/sell/fulfillment/v1/order')
-        req.add_header('Authorization', 'Bearer '
-                        + self.credentials.getAccessToken(self.scope))
-        content = urlopen(req).read()
-        self.sales = json.loads(content)
+        oauth_token = self.credentials.getOauthToken()
+        access_token = ebayAPI.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
+        self.sales = ebayAPI.getRESTContent(self.endpoint, access_token)
         return self
 
     def syncNeeded(self, order_id, api_last_updated) -> bool:
