@@ -22,6 +22,16 @@ class Credentials:
 
             return True
 
+    def setConfig(self, config: dict) -> None:
+        for section, entry in config.items():
+            for option, value in entry.items():
+                self.parser[section] = entry
+                setattr(self, section + '_' + option, value)
+
+    def saveConfigFile(self):
+        with open(self.filepath, 'w') as configFile:
+            self.parser.write(configFile)
+
     def getOauthToken(self, app_id=None, cert_id=None):
         if app_id:
             enc_string = f"{app_id}:{cert_id}"
