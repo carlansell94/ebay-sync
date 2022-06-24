@@ -22,5 +22,10 @@ class Credentials:
 
             return True
 
-    def getOauthToken(self):
-        return b64encode((self.ebay_app_id + ":" + self.ebay_cert_id).encode('ascii')).decode()
+    def getOauthToken(self, app_id=None, cert_id=None):
+        if app_id:
+            enc_string = f"{app_id}:{cert_id}"
+        else:
+            enc_string = f"{self.ebay_app_id}:{self.ebay_cert_id}"
+
+        return b64encode(enc_string.encode('ascii')).decode()
