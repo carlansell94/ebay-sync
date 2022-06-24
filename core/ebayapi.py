@@ -36,7 +36,6 @@ class ebayAPI:
             return json
         except error.HTTPError as e:
             body = e.read().decode()
-            print(body)
 
     @staticmethod
     def getXMLContent(call: str, credentials: dict, args: str) -> str:
