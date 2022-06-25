@@ -3,11 +3,11 @@
 import MySQLdb
 import sys
 import re
+
 sys.path.append("..")
 
 from core.credentials import Credentials
 from model.sale import Sale
-from model.fulfillment import Fulfillment
 from setup import setup
 from sync.getSales import getSales
 from sync.getFeedback import getFeedback
@@ -43,45 +43,31 @@ def runSetup(credentials):
     else:
         print("Database installed successfully.")
 
-credentials = Credentials()
+def main():
+    credentials = Credentials()
 
-if not credentials.readConfigFile():
-    print("Config file not found, running setup...")
-    runSetup(credentials)
+    if not credentials.readConfigFile():
+        print("Config file not found, running setup...")
+        runSetup(credentials)
 
-db = MySQLdb.connect(db=credentials.client_name, user=credentials.client_user,
-                        passwd=credentials.client_password)
+    db = MySQLdb.connect(db=credentials.client_name, user=credentials.client_user,
+                            passwd=credentials.client_password)
 
-# Get sales
-sales = getSales(db, credentials)
-sales.fetch().parse()
+    # Get sales
+    sales = getSales(db, credentials)
+    sales.fetch().parse()
 
-# Get Feedback
-sale = Sale(db)
-legacy_order_ids = sale.getLegacyOrderIds()
-for order_id in legacy_order_ids:
-    if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
-        getFeedback(db, credentials).fetch(order_id[0])
+    # Get Feedback
+    sale = Sale(db)
+    legacy_order_ids = sale.getLegacyOrderIds()
+    for order_id in legacy_order_ids:
+        if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
+            getFeedback(db, credentials).fetch(order_id[0])
 
-# Get fulfillment info
-fulfillment = getFulfillment(credentials)
+    # Get fulfillment info
+    fulfillment = getFulfillment(db, credentials)
+    for uri in sales.getFulfillmentLinks():
+        fulfillment.setUri(uri).fetch().parse()
 
-for link in sales.getFulfillmentLinks():
-    out = fulfillment.setUri(link).fetch()
-    f = Fulfillment(db)
-
-    if out is None:
-        tracking = link.rsplit('/', 1)[1]
-
-        f.setFulfillmentId(tracking)
-        f.setTrackingId(tracking)
-        f.add()
-    else:
-        f.setFulfillmentId(out['fulfillmentId'])
-        f.setCarrier(out['shippingCarrierCode'])
-        f.setTrackingId(out['shipmentTrackingNumber'])
-        f.setFulfillmentDate(out['shippedDate'])
-        f.add()
-
-        f.setLineItemIds(out['lineItems'])
-        f.addLineItems()
+if __name__ == '__main__':
+    sys.exit(main())
