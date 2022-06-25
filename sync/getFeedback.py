@@ -10,18 +10,17 @@ class getFeedback:
         self.credentials = credentials
 
     def fetch(self, order_id):
-        item_id = order_id.split('-')[0]
-        transaction_id = order_id.split('-')[1]
+        item_id, transaction_id = order_id.split('-')
 
-        args = ('<DetailLevel>ReturnAll</DetailLevel><EntriesPerPage>200'
-                + '</EntriesPerPage><FeedbackType>FeedbackReceivedAsSeller'
-                + '</FeedbackType><ItemID>'
-                + item_id
-                + '</ItemID><TransactionID>'
-                + transaction_id
-                + '</TransactionID><OutputSelector>CommentType'
-                + '</OutputSelector><OutputSelector>CommentText'
-                + '</OutputSelector><OutputSelector>FeedbackID</OutputSelector>'
+        args = (
+            "<DetailLevel>ReturnAll</DetailLevel>"
+            "<EntriesPerPage>200</EntriesPerPage>"
+            "<FeedbackType>FeedbackReceivedAsSeller</FeedbackType>"
+            f"<ItemID>{item_id}</ItemID>"
+            f"<TransactionID>{transaction_id}</TransactionID>"
+            "<OutputSelector>CommentType</OutputSelector>"
+            "<OutputSelector>CommentText</OutputSelector>"
+            "<OutputSelector>FeedbackID</OutputSelector>"
         )
 
         content = ebayAPI.getXMLContent('GetFeedback', self.credentials, args)
@@ -30,14 +29,17 @@ class getFeedback:
         feedback = Feedback(self.db)
         feedback.setLegacyOrderId(order_id)
 
-        for fb in root.iter(tag='{urn:ebay:apis:eBLBaseComponents}FeedbackDetail'):
-            for fb_id in fb.iter(tag='{urn:ebay:apis:eBLBaseComponents}FeedbackID'):
-                feedback.setFeedbackId(fb_id.text)
+        for fb in root.iter('{urn:ebay:apis:eBLBaseComponents}FeedbackDetail'):
+            feedback.setFeedbackId(fb.findtext(
+                '{urn:ebay:apis:eBLBaseComponents}FeedbackID'
+            ))
 
-            for comment in fb.iter(tag='{urn:ebay:apis:eBLBaseComponents}CommentText'):
-                feedback.setComment(comment.text)
+            feedback.setComment(fb.findtext(
+                '{urn:ebay:apis:eBLBaseComponents}CommentText'
+            ))
 
-            for comment_type in fb.iter(tag='{urn:ebay:apis:eBLBaseComponents}CommentType'):
-                feedback.setFeedbackType(comment_type.text)
+            feedback.setFeedbackType(fb.findtext(
+                '{urn:ebay:apis:eBLBaseComponents}CommentType'
+            ))
 
             feedback.add()
