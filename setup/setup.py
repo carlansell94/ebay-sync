@@ -8,10 +8,11 @@ from getpass import getpass
 def installDb(db_name) -> bool:
     commands = [
         "mysql",                
-        "--defaults-file=%s" % ('../core/credentials.ini',) , 
+        "--defaults-file=../core/credentials.ini", 
         "--database", db_name,
         "--unbuffered",
-        "--execute", 'SOURCE ../setup/schema.sql'
+        "--execute",
+        "SOURCE ../setup/schema.sql"
     ]
 
     process = Popen(commands, stdout=PIPE, stderr=PIPE)
