@@ -14,11 +14,11 @@ Features:
 * eBay developer account
   
 ## How To Use:
-Simply run sync/run.py to start.
+Simply execute run.py to start.
 
 On first run, the application will ask for your database and eBay API credentials. If the provided database user has the required permissions, the database schema will be installed automatically. If not, you can set this up yourself using setup/schema.sql.
 
-To re-run setup, delete core/credentials.ini.
+To re-run setup, delete setup/credentials.ini.
   
 ## eBay Credentials:
 In order to use this application, you will need to sign up for an eBay developer account, and create a production app.  
