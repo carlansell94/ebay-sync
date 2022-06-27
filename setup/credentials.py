@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-from os.path import dirname, abspath
-from configparser import ConfigParser
 from base64 import b64encode
+from configparser import ConfigParser
+from os.path import dirname, abspath
 
 class Credentials:
     def __init__(self) -> None:

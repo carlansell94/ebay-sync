@@ -4,14 +4,12 @@ import MySQLdb
 import sys
 import re
 
-sys.path.append("..")
-
-from core.credentials import Credentials
-from model.sale import Sale
+from getFeedback import getFeedback
+from getFulfillment import getFulfillment
+from getSales import getSales
+from lib.sale import Sale
 from setup import setup
-from sync.getSales import getSales
-from sync.getFeedback import getFeedback
-from sync.getFulfillment import getFulfillment
+from setup.credentials import Credentials
 
 def runSetup(credentials):
     db_credentials = setup.getDbCredentials()

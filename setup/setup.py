@@ -2,17 +2,17 @@
 
 import MySQLdb
 from subprocess import Popen, PIPE
-from core.ebayapi import ebayAPI
+from lib.api_request import APIrequest
 from getpass import getpass
 
 def installDb(db_name) -> bool:
     commands = [
         "mysql",                
-        "--defaults-file=../core/credentials.ini", 
+        "--defaults-file=setup/credentials.ini", 
         "--database", db_name,
         "--unbuffered",
         "--execute",
-        "SOURCE ../setup/schema.sql"
+        "SOURCE setup/schema.sql"
     ]
 
     process = Popen(commands, stdout=PIPE, stderr=PIPE)
@@ -65,7 +65,7 @@ def checkDbCredentials(credentials: dict) -> bool:
 def checkEbayAPICredentials(credentials: dict, oauth_token: str) -> bool:
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 
-    if not ebayAPI.getAccessToken(scope, credentials, oauth_token):
+    if not APIrequest.getAccessToken(scope, credentials, oauth_token):
         print("Error obtaining eBay API access token")
         return False
 

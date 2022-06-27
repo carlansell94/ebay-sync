@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from core.ebayapi import ebayAPI
-from model.sale import Sale
-from model.line import Line
-from model.address import Address
-from model.payment import Payment
-from model.refund import Refund
+from lib.address import Address
+from lib.api_request import APIrequest
+from lib.line import Line
+from lib.payment import Payment
+from lib.refund import Refund
+from lib.sale import Sale
 
 class getSales:
     endpoint = 'https://api.ebay.com/sell/fulfillment/v1/order'
@@ -17,8 +17,8 @@ class getSales:
 
     def fetch(self):
         oauth_token = self.credentials.getOauthToken()
-        access_token = ebayAPI.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
-        self.sales = ebayAPI.getRESTContent(self.endpoint, access_token)
+        access_token = APIrequest.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
+        self.sales = APIrequest.getRESTContent(self.endpoint, access_token)
         return self
 
     def syncNeeded(self, order_id, api_last_updated) -> bool:

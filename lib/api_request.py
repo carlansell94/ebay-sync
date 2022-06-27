@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-from urllib.request import Request, urlopen
-from urllib import error, parse
 from json import loads
+from urllib import error, parse
+from urllib.request import Request, urlopen
 
-class ebayAPI:
+class APIrequest:
     @staticmethod
     def getAccessToken(scope: str, refresh_token: str, oauth_token: str) -> str:
         body = parse.urlencode({

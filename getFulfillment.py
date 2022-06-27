@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from core.ebayapi import ebayAPI
-from model.fulfillment import Fulfillment
+from lib.api_request import APIrequest
+from lib.fulfillment import Fulfillment
 
 class getFulfillment():
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
@@ -16,8 +16,8 @@ class getFulfillment():
 
     def fetch(self):
         oauth_token = self.credentials.getOauthToken()
-        access_token = ebayAPI.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
-        self.content = ebayAPI.getRESTContent(self.uri, access_token)
+        access_token = APIrequest.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
+        self.content = APIrequest.getRESTContent(self.uri, access_token)
         return self
 
     def parse(self):

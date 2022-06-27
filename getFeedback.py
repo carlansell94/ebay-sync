@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import xml.etree.ElementTree as ET
-from core.ebayapi import ebayAPI
-from model.feedback import Feedback
+from lib.api_request import APIrequest
+from lib.feedback import Feedback
 
 class getFeedback:
     def __init__(self, db, credentials):
@@ -23,7 +23,7 @@ class getFeedback:
             "<OutputSelector>FeedbackID</OutputSelector>"
         )
 
-        content = ebayAPI.getXMLContent('GetFeedback', self.credentials, args)
+        content = APIrequest.getXMLContent('GetFeedback', self.credentials, args)
         root = ET.fromstring(content)
 
         feedback = Feedback(self.db)
