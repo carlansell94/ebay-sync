@@ -54,18 +54,21 @@ def getEbayAPICredentials() -> dict:
 
 def checkDbCredentials(credentials: dict) -> bool:
     try:
-        MySQLdb.connect(db=credentials['name'], user=credentials['user'],
-                        passwd=credentials['password'])
+        MySQLdb.connect(
+            db=credentials['name'],
+            user=credentials['user'],
+            passwd=credentials['password']
+        )
     except Exception as e:
         print(f"Error connecting to the database: {e}")
         return False
 
     return True
 
-def checkEbayAPICredentials(credentials: dict, oauth_token: str) -> bool:
+def checkEbayAPICredentials(refresh_token: str, oauth_token: str) -> bool:
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 
-    if not APIrequest.getAccessToken(scope, credentials, oauth_token):
+    if not APIrequest.getAccessToken(scope, refresh_token, oauth_token):
         print("Error obtaining eBay API access token")
         return False
 
