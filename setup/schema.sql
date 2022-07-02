@@ -100,7 +100,6 @@ CREATE TABLE `payment` (
   `payment_currency` varchar(3) NOT NULL DEFAULT 'GBP',
   `fee_amount` decimal(5,2) NOT NULL DEFAULT 0.00,
   `fee_currency` varchar(3) NOT NULL DEFAULT 'GBP',
-  `payment_status` char(1) DEFAULT NULL,
   `last_updated` datetime DEFAULT NULL,
   PRIMARY KEY (`payment_id`),
   UNIQUE KEY `processor_id` (`processor_id`),

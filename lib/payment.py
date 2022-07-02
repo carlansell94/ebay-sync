@@ -133,7 +133,6 @@ class Payment():
                 payment_currency,
                 fee_amount,
                 fee_currency,
-                payment_status,
                 last_updated
             ) VALUES (
                 %(order_id)s,
@@ -144,7 +143,6 @@ class Payment():
                 %(payment_currency)s,
                 %(fee_amount)s,
                 %(fee_currency)s,
-                'S',
                 %(update_date)s
             )
         """, {
