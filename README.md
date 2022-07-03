@@ -18,10 +18,10 @@ In order to use this application, you will need to sign up for an eBay developer
 You will also need to add your Auth'n'Auth token, and OAuth refresh token. This app is currently unable to generate refresh tokens from authorisation codes.
 
 # Installation
-You can install the latest release of this app using pip.
+You can install the current pre-release version of this app using pip.
 
 ```
-pip install https://github.com/carlansell94/ebay-sync/releases/latest/ebay-sync.tar.gz
+pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.1/ebay-sync.tar.gz
 ```
 
 This is the recommended way to install this app, to ensure all dependencies are installed.
