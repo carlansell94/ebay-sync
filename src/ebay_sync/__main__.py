@@ -4,25 +4,31 @@ import MySQLdb
 import sys
 import re
 
-from getFeedback import getFeedback
-from getFulfillment import getFulfillment
-from getSales import getSales
-from lib.sale import Sale
-from setup import setup
-from setup.credentials import Credentials
+from .getFeedback import getFeedback
+from .getFulfillment import getFulfillment
+from .getSales import getSales
+from .lib.sale import Sale
+from .setup import setup
+from .setup.credentials import Credentials
 
-def runSetup(credentials):
+def credentials_setup(credentials):
     db_credentials = setup.getDbCredentials()
-    
+
     while not setup.checkDbCredentials(db_credentials):
         db_credentials = setup.getDbCredentials()
-    
-    ebay_credentials = setup.getEbayAPICredentials()
-    oauth_token = credentials.getOauthToken(ebay_credentials['app_id'], ebay_credentials['cert_id'])
 
-    while not setup.checkEbayAPICredentials(ebay_credentials, oauth_token):
+    ebay_credentials = setup.getEbayAPICredentials()
+    oauth_token = credentials.getOauthToken(
+        ebay_credentials['app_id'],
+        ebay_credentials['cert_id']
+    )
+
+    while not setup.checkEbayAPICredentials(
+        ebay_credentials['refresh_token'],
+        oauth_token
+    ):
         ebay_credentials = setup.getEbayAPICredentials()
-    
+
     config = {
         'client': db_credentials,
         'ebay': ebay_credentials
@@ -33,11 +39,16 @@ def runSetup(credentials):
 
     print("")
     print("Credentials have been saved.")
+
+def schema_setup(db_name: str):
     print("Installing database...")
 
-    if setup.installDb(db_credentials['name']) == False:
-        print("Unable to install database, check the specified user has the required privileges.")
-        print("Alternatively, load the included schema.sql file into your database.")
+    if not setup.installDb(db_name):
+        print(
+            """Unable to install database, check the specified user has the
+            required privileges. Alternatively, load the included schema.sql
+            file into your database."""
+        )
     else:
         print("Database installed successfully.")
 
@@ -46,10 +57,20 @@ def main():
 
     if not credentials.readConfigFile():
         print("Config file not found, running setup...")
-        runSetup(credentials)
 
-    db = MySQLdb.connect(db=credentials.client_name, user=credentials.client_user,
-                            passwd=credentials.client_password)
+        while not credentials.readConfigFile():
+            credentials_setup(credentials)
+
+        schema_setup(credentials.client_name)
+
+    try:
+        db = MySQLdb.connect(
+            db=credentials.client_name,
+            user=credentials.client_user,
+            passwd=credentials.client_password
+        )
+    except Exception as e:
+        print(f"Error connecting to the database: {e}")
 
     # Get sales
     sales = getSales(db, credentials)

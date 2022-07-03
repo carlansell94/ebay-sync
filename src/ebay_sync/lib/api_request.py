@@ -24,7 +24,7 @@ class APIrequest:
             return token
         except error.HTTPError as e:
             body = e.read().decode()
-    
+
     @staticmethod
     def getRESTContent(endpoint: str, access_token: str) -> str:
         req = Request(endpoint)

@@ -2,12 +2,12 @@
 
 from base64 import b64encode
 from configparser import ConfigParser
-from os.path import dirname, abspath
+from pathlib import Path
 
 class Credentials:
     def __init__(self) -> None:
         self.parser = ConfigParser()
-        self.filepath = dirname(abspath(__file__)) + '/credentials.ini'
+        self.filepath = str(Path(__file__).parent.absolute()) + '/credentials.ini'
 
     def readConfigFile(self) -> bool:
         config = self.parser.read(self.filepath)
@@ -29,8 +29,8 @@ class Credentials:
                 setattr(self, section + '_' + option, value)
 
     def saveConfigFile(self):
-        with open(self.filepath, 'w') as configFile:
-            self.parser.write(configFile)
+        with open(self.filepath, 'w') as config_file:
+            self.parser.write(config_file)
 
     def getOauthToken(self, app_id=None, cert_id=None):
         if app_id:

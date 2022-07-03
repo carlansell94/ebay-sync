@@ -1,0 +1,24 @@
+[project]
+name = "ebay-sync"
+version = "0.1"
+authors = [
+  { name="carlansell94" },
+]
+description = "A package designed to sync data from an eBay account using the eBay developer API"
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "mysqlclient"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/carlansell94/ebay-sync"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"

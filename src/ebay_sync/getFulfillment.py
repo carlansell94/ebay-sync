@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from lib.api_request import APIrequest
-from lib.fulfillment import Fulfillment
+from .lib.api_request import APIrequest
+from .lib.fulfillment import Fulfillment
 
 class getFulfillment():
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'

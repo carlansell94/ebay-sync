@@ -8,7 +8,7 @@ class Payment():
 
     def setOrderId(self, value: str):
         self.order_id = value
-        return self 
+        return self
 
     def setProcessorName(self, value: str):
         self.processor_name = value
@@ -18,7 +18,7 @@ class Payment():
         self.processor_id = value
         return self
 
-    def setPaymentDate(self, value: str):                            
+    def setPaymentDate(self, value: str):
         self.payment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
 

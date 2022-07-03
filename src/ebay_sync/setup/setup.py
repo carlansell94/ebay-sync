@@ -1,18 +1,25 @@
 #!/usr/bin/env python3
 
 import MySQLdb
-from subprocess import Popen, PIPE
-from lib.api_request import APIrequest
 from getpass import getpass
+from pathlib import Path
+from subprocess import Popen, PIPE
+
+from ..lib.api_request import APIrequest
 
 def installDb(db_name) -> bool:
+    path = str(Path(__file__).parent.absolute())
+
+    credentials_path = path + "/credentials.ini"
+    schema_path = path + "/schema.sql"
+
     commands = [
-        "mysql",                
-        "--defaults-file=setup/credentials.ini", 
+        "mysql",
+        f"--defaults-file={credentials_path}",
         "--database", db_name,
         "--unbuffered",
         "--execute",
-        "SOURCE setup/schema.sql"
+        f"SOURCE {schema_path}"
     ]
 
     process = Popen(commands, stdout=PIPE, stderr=PIPE)
@@ -21,7 +28,7 @@ def installDb(db_name) -> bool:
     if process.returncode == 1:
         print(f"Error setting up database: {stderr}")
         return False
-    
+
     return True
 
 def getDbCredentials() -> dict:

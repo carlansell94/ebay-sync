@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Refund():
     def __init__(self, db) -> None:
-        self.db = db      
+        self.db = db
 
     def setId(self, value: int):
         self.id = value
@@ -18,10 +18,10 @@ class Refund():
         self.original_payment_id = value
         return self
 
-    def setDate(self, value: str):                            
+    def setDate(self, value: str):
         self.date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                         .strftime("%Y-%m-%d %H:%M:%S"))
-                                
+
         return self
 
     def setAmount(self, value):
@@ -59,7 +59,7 @@ class Refund():
         if not self.payment_id:
             return False
 
-        return True           
+        return True
 
     def add(self) -> None:
         query = self.db.cursor()
