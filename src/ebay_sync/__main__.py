@@ -3,6 +3,7 @@
 import MySQLdb
 import sys
 import re
+import argparse
 
 from .getFeedback import getFeedback
 from .getFulfillment import getFulfillment
@@ -10,6 +11,76 @@ from .getSales import getSales
 from .lib.sale import Sale
 from .setup import setup
 from .setup.credentials import Credentials
+
+def get_args():
+    parser = argparse.ArgumentParser(
+        prog="ebay_sync",
+        description='Sync sales data from eBay using the eBay developer API'
+    )
+
+    parser_setup = parser.add_mutually_exclusive_group(required=False)
+    parser_setup.add_argument("-s", "--setup", action='store_true',
+        help="Set database/api credentials and install the database")
+    parser_setup.add_argument("-c", "--credentials", action='store_true',
+        help="Set new database/api credentials")
+    parser_setup.add_argument("-i", "--install", action='store_true',
+        help="Install the database schema")
+    parser_setup.add_argument("-r", "--refresh-token",
+        help="Update the stored refresh token with the provided value")
+    parser_setup.add_argument("-t", "--test", action='store_true',
+        help="Test the database/api credentials")
+
+    return parser.parse_args()
+
+def run_setup(credentials, args):
+    if args.credentials:
+        credentials_setup(credentials)
+        exit()
+
+    if args.install:
+        db = getDbConnection(credentials)
+
+        if not db:
+            print(
+                """Please run 'ebay_sync -s' or 'ebay_sync -c to """
+                """create a new credentials file."""
+            )
+            exit()
+        
+        if not schema_setup(db, credentials.client_name):
+            print(
+                """Unable to install database, check the specified user """
+                """has the required privileges. Alternatively, load the """
+                """included schema.sql file into your database."""
+            )
+        else:
+            print("Database installed successfully.")
+
+        exit()
+
+    if args.test:
+        if valid_credentials(credentials):
+            print("Test completed successfully, credentials are valid.")
+        else:
+            print(
+                """Errors found, please run ebay_sync -s or ebay_sync -c """
+                """to create a new credentials file."""
+            )
+        exit()
+
+    if args.refresh_token is not None:
+        credentials.updateRefreshToken(args.refresh_token)
+
+        if check_ebay_api_credentials(credentials):
+            credentials.saveConfigFile()
+            print("Updated token has been saved.")
+        else:
+            print(
+                """Updated token is not valid, the previous token has """
+                """been retained."""
+            )
+            
+        exit()
 
 def credentials_setup(credentials):
     db_credentials = setup.getDbCredentials()
@@ -53,17 +124,40 @@ def schema_setup(db, db_name: str):
             print("Exiting...")
             exit()
 
-    if not setup.installDb(db_name):
-        print(
-            """Unable to install database, check the specified user has the
-            required privileges. Alternatively, load the included schema.sql
-            file into your database."""
-        )
-    else:
-        print("Database installed successfully.")
+    return setup.installDb(db_name)
+
+def valid_credentials(credentials) -> bool:
+    valid = True
+    
+    if not check_database_credentials():
+        print("Invalid database credentials.")
+        valid = False
+            
+    if not check_ebay_api_credentials(credentials):
+        print("Invalid eBay API credentials.")
+        valid = False
+            
+    return valid
+
+def check_database_credentials() -> bool:
+    return setup.checkDbCredentials()
+
+def check_ebay_api_credentials(credentials) -> bool:
+    oauth_token = credentials.getOauthToken(
+        credentials.ebay_app_id,
+        credentials.ebay_cert_id
+    )
+
+    if setup.checkEbayAPICredentials(
+        credentials.ebay_refresh_token,
+        oauth_token
+    ):
+        return True
+    
+    return False
 
 def runSync(credentials):
-    db = getDbConnection(credentials)
+    db = getDbConnection()
 
     sales = getSales(db, credentials)
     sales.fetch().parse()
@@ -92,17 +186,21 @@ def getDbConnection(credentials):
 
 def main():
     credentials = Credentials()
+    credentials_loaded = credentials.readConfigFile()
+    args = get_args()
 
-    if not credentials.readConfigFile():
-        print("Config file not found, running setup...")
-
-        while not credentials.readConfigFile():
-            credentials_setup(credentials)
-
-        db = getDbConnection()
-        schema_setup(db, credentials.client_name)
-
-    runSync(credentials)
+    if len(sys.argv) == 1:
+        runSync(credentials)
+    else:
+        if (not credentials_loaded and not args.credentials
+            and not args.setup):
+            print(
+                """Credentials file not found. Please run 'ebay_sync -s'"""
+                """ or 'ebay_sync -c' to create the credentials file."""
+            )
+            exit()
+        else:
+            run_setup(credentials, args)
 
 if __name__ == '__main__':
     sys.exit(main())
