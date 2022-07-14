@@ -52,6 +52,19 @@ def schema_setup(db_name: str):
     else:
         print("Database installed successfully.")
 
+def getDbConnection(credentials):
+    try:
+        db = MySQLdb.connect(
+            db=credentials.client_name,
+            user=credentials.client_user,
+            passwd=credentials.client_password
+        )
+    except Exception as e:
+        print(f"Error connecting to the database: {e}")
+        return False
+
+    return db
+
 def main():
     credentials = Credentials()
 
@@ -63,14 +76,7 @@ def main():
 
         schema_setup(credentials.client_name)
 
-    try:
-        db = MySQLdb.connect(
-            db=credentials.client_name,
-            user=credentials.client_user,
-            passwd=credentials.client_password
-        )
-    except Exception as e:
-        print(f"Error connecting to the database: {e}")
+    db = getDbConnection()
 
     # Get sales
     sales = getSales(db, credentials)
