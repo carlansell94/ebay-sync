@@ -80,3 +80,12 @@ def checkEbayAPICredentials(refresh_token: str, oauth_token: str) -> bool:
         return False
 
     return True
+
+def checkDbIsEmpty(db) -> bool:
+    query = db.cursor()
+    query.execute("""SHOW TABLES""")
+    
+    if query.fetchone() is None:
+        return True
+    
+    return False

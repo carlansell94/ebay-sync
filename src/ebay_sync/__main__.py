@@ -40,8 +40,18 @@ def credentials_setup(credentials):
     print("")
     print("Credentials have been saved.")
 
-def schema_setup(db_name: str):
+def schema_setup(db, db_name: str):
     print("Installing database...")
+
+    if not setup.checkDbIsEmpty(db):
+        confirm = input(
+            """Database is not empty. Continuing will drop existing """
+            """tables used by this app. Do you want to continue? (y/n): """
+        )
+
+        if confirm != 'Y' and confirm != 'y':
+            print("Exiting...")
+            exit()
 
     if not setup.installDb(db_name):
         print(
@@ -74,9 +84,10 @@ def main():
         while not credentials.readConfigFile():
             credentials_setup(credentials)
 
+        db = getDbConnection()
         schema_setup(credentials.client_name)
-
-    db = getDbConnection()
+    else:
+        db = getDbConnection()
 
     # Get sales
     sales = getSales(db, credentials)
