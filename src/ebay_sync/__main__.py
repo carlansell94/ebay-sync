@@ -77,8 +77,7 @@ def main():
     sales.fetch().parse()
 
     # Get Feedback
-    sale = Sale(db)
-    legacy_order_ids = sale.getLegacyOrderIds()
+    legacy_order_ids = Sale.getLegacyOrderIds(db)
     for order_id in legacy_order_ids:
         if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
             getFeedback(db, credentials).fetch(order_id[0])

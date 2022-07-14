@@ -6,11 +6,6 @@ class Sale():
     def __init__(self, db) -> None:
         self.db = db
 
-    def getLegacyOrderIds(self):
-        query = self.db.cursor()
-        query.execute("SELECT legacy_order_id FROM sale")
-        return query.fetchall()
-
     def updateStatus(self, value: str) -> None:
         query = self.db.cursor()
         query.execute("""
@@ -101,4 +96,10 @@ class Sale():
         if query.rowcount == 0:
             return False
 
+        return query.fetchall()
+
+    @staticmethod
+    def getLegacyOrderIds(db):
+        query = db.cursor()
+        query.execute("SELECT legacy_order_id FROM sale")
         return query.fetchall()
