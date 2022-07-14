@@ -39,3 +39,7 @@ class Credentials:
             enc_string = f"{self.ebay_app_id}:{self.ebay_cert_id}"
 
         return b64encode(enc_string.encode('ascii')).decode()
+
+    def updateRefreshToken(self, refresh_token: str) -> None:
+        setattr(self, 'ebay_refresh_token', refresh_token)
+        self.parser.set('ebay', 'refresh_token', refresh_token)
