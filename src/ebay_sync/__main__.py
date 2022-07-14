@@ -62,6 +62,21 @@ def schema_setup(db, db_name: str):
     else:
         print("Database installed successfully.")
 
+def runSync(credentials):
+    db = getDbConnection(credentials)
+
+    sales = getSales(db, credentials)
+    sales.fetch().parse()
+
+    fulfillment = getFulfillment(db, credentials)
+    for uri in sales.getFulfillmentLinks():
+        fulfillment.setUri(uri).fetch().parse()
+
+    legacy_order_ids = Sale.getLegacyOrderIds(db)
+    for order_id in legacy_order_ids:
+        if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
+            getFeedback(db, credentials).fetch(order_id[0])
+
 def getDbConnection(credentials):
     try:
         db = MySQLdb.connect(
@@ -85,24 +100,9 @@ def main():
             credentials_setup(credentials)
 
         db = getDbConnection()
-        schema_setup(credentials.client_name)
-    else:
-        db = getDbConnection()
+        schema_setup(db, credentials.client_name)
 
-    # Get sales
-    sales = getSales(db, credentials)
-    sales.fetch().parse()
-
-    # Get Feedback
-    legacy_order_ids = Sale.getLegacyOrderIds(db)
-    for order_id in legacy_order_ids:
-        if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
-            getFeedback(db, credentials).fetch(order_id[0])
-
-    # Get fulfillment info
-    fulfillment = getFulfillment(db, credentials)
-    for uri in sales.getFulfillmentLinks():
-        fulfillment.setUri(uri).fetch().parse()
+    runSync(credentials)
 
 if __name__ == '__main__':
     sys.exit(main())
