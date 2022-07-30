@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE
 
 from ..lib.api_request import APIrequest
 
-def installDb(db_name) -> bool:
+def __import_schema(db_name) -> bool:
     path = str(Path(__file__).parent.absolute())
 
     credentials_path = path + "/credentials.ini"
@@ -81,6 +81,25 @@ def checkEbayAPICredentials(refresh_token: str, oauth_token: str) -> bool:
 
     return True
 
+def checkAllCredentials(credentials: dict) -> bool:
+    valid = True
+
+    if not checkDbCredentials(credentials):
+        valid = False
+    
+    oauth_token = credentials.getOauthToken(
+        credentials.ebay_app_id,
+        credentials.ebay_cert_id
+    )
+
+    if not checkEbayAPICredentials(
+        credentials.ebay_refresh_token,
+        oauth_token
+    ):
+        valid = False
+    
+    return valid
+
 def checkDbIsEmpty(db) -> bool:
     query = db.cursor()
     query.execute("""SHOW TABLES""")
@@ -89,3 +108,46 @@ def checkDbIsEmpty(db) -> bool:
         return True
     
     return False
+
+def installDb(db, db_name: str) -> bool:
+    print("Installing database...")
+
+    if not checkDbIsEmpty(db):
+        confirm = input(
+            """Database is not empty. Continuing will drop existing """
+            """tables used by this app. Do you want to continue? (y/n): """
+        )
+
+        if confirm != 'Y' and confirm != 'y':
+            return False
+
+    return __import_schema(db_name)
+
+def credentialsSetup(credentials):
+    db_credentials = getDbCredentials()
+
+    while not checkDbCredentials(db_credentials):
+        db_credentials = getDbCredentials()
+
+    ebay_credentials = getEbayAPICredentials()
+    oauth_token = credentials.getOauthToken(
+        ebay_credentials['app_id'],
+        ebay_credentials['cert_id']
+    )
+
+    while not checkEbayAPICredentials(
+        ebay_credentials['refresh_token'],
+        oauth_token
+    ):
+        ebay_credentials = getEbayAPICredentials()
+
+    config = {
+        'client': db_credentials,
+        'ebay': ebay_credentials
+    }
+
+    credentials.setConfig(config)
+    credentials.saveConfigFile()
+
+    print("")
+    print("Credentials have been saved.")

@@ -34,7 +34,7 @@ def getArgs():
 
 def run_setup(credentials, args):
     if args.credentials:
-        credentialsSetup(credentials)
+        setup.credentialsSetup(credentials)
         exit()
 
     if args.install:
@@ -47,7 +47,7 @@ def run_setup(credentials, args):
             )
             exit()
         
-        if not schemaSetup(db, credentials.client_name):
+        if not setup.installDb(db, credentials.client_name):
             print(
                 """Unable to install database, check the specified user """
                 """has the required privileges. Alternatively, load the """
@@ -59,7 +59,7 @@ def run_setup(credentials, args):
         exit()
 
     if args.test:
-        if validCredentials(credentials):
+        if setup.checkAllCredentials(credentials):
             print("Test completed successfully, credentials are valid.")
         else:
             print(
@@ -69,9 +69,16 @@ def run_setup(credentials, args):
         exit()
 
     if args.refresh_token is not None:
+        oauth_token = credentials.getOauthToken(
+            credentials.ebay_app_id,
+            credentials.ebay_cert_id
+        )
         credentials.updateRefreshToken(args.refresh_token)
 
-        if checkEbayAPICredentials(credentials):
+        if setup.checkEbayAPICredentials(
+            credentials.refresh_token,
+            oauth_token
+        ):
             credentials.saveConfigFile()
             print("Updated token has been saved.")
         else:
@@ -82,82 +89,8 @@ def run_setup(credentials, args):
             
         exit()
 
-def credentialsSetup(credentials):
-    db_credentials = setup.getDbCredentials()
-
-    while not setup.checkDbCredentials(db_credentials):
-        db_credentials = setup.getDbCredentials()
-
-    ebay_credentials = setup.getEbayAPICredentials()
-    oauth_token = credentials.getOauthToken(
-        ebay_credentials['app_id'],
-        ebay_credentials['cert_id']
-    )
-
-    while not setup.checkEbayAPICredentials(
-        ebay_credentials['refresh_token'],
-        oauth_token
-    ):
-        ebay_credentials = setup.getEbayAPICredentials()
-
-    config = {
-        'client': db_credentials,
-        'ebay': ebay_credentials
-    }
-
-    credentials.setConfig(config)
-    credentials.saveConfigFile()
-
-    print("")
-    print("Credentials have been saved.")
-
-def schemaSetup(db, db_name: str):
-    print("Installing database...")
-
-    if not setup.checkDbIsEmpty(db):
-        confirm = input(
-            """Database is not empty. Continuing will drop existing """
-            """tables used by this app. Do you want to continue? (y/n): """
-        )
-
-        if confirm != 'Y' and confirm != 'y':
-            print("Exiting...")
-            exit()
-
-    return setup.installDb(db_name)
-
-def validCredentials(credentials) -> bool:
-    valid = True
-    
-    if not checkDatabaseCredentials():
-        print("Invalid database credentials.")
-        valid = False
-            
-    if not checkEbayAPICredentials(credentials):
-        print("Invalid eBay API credentials.")
-        valid = False
-            
-    return valid
-
-def checkDatabaseCredentials() -> bool:
-    return setup.checkDbCredentials()
-
-def checkEbayAPICredentials(credentials) -> bool:
-    oauth_token = credentials.getOauthToken(
-        credentials.ebay_app_id,
-        credentials.ebay_cert_id
-    )
-
-    if setup.checkEbayAPICredentials(
-        credentials.ebay_refresh_token,
-        oauth_token
-    ):
-        return True
-    
-    return False
-
 def runSync(credentials):
-    db = getDbConnection()
+    db = getDbConnection(credentials)
 
     sales = getSales(db, credentials)
     sales.fetch().parse()
