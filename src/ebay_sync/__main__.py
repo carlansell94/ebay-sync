@@ -26,7 +26,7 @@ def getArgs():
     parser_setup.add_argument("-i", "--install", action='store_true',
         help="Install the database schema")
     parser_setup.add_argument("-r", "--refresh-token",
-        help="Update the stored refresh token with the provided value")
+        help="Fetch a new refresh token using the provided auth URL")
     parser_setup.add_argument("-t", "--test", action='store_true',
         help="Test the database/api credentials")
 
@@ -73,20 +73,27 @@ def run_setup(credentials, args):
             credentials.ebay_app_id,
             credentials.ebay_cert_id
         )
-        credentials.updateRefreshToken(args.refresh_token)
 
-        if setup.checkEbayAPICredentials(
-            credentials.refresh_token,
-            oauth_token
-        ):
+        new_refresh_token = setup.getNewRefreshToken(
+            args.refresh_token,
+            oauth_token,
+            credentials.ebay_redirect_url
+        )
+
+        if new_refresh_token:
+            credentials.setOptionValue(
+                'ebay_refresh_token',
+                new_refresh_token
+            )
             credentials.saveConfigFile()
-            print("Updated token has been saved.")
+
+            print("eBay API refresh token has been updated successfully.")
         else:
             print(
-                """Updated token is not valid, the previous token has """
-                """been retained."""
+                """Unable to fetch a new refresh token, check the """
+                """provided return URL is valid."""
             )
-            
+
         exit()
 
 def runSync(credentials):

@@ -4,6 +4,7 @@ import MySQLdb
 from getpass import getpass
 from pathlib import Path
 from subprocess import Popen, PIPE
+from urllib.parse import urlparse, parse_qs
 
 from ..lib.api_request import APIrequest
 
@@ -54,7 +55,8 @@ def getEbayAPICredentials() -> dict:
         'dev_id': input("Dev ID: "),
         'cert_id': input("Cert ID: "),
         'authnauth': input("Auth'n'auth token: "),
-        'refresh_token': input("Refresh token: ")
+        'refresh_token': input("Refresh token: "),
+        'redirect_url': input("Redirect URL name: ")
     }
 
     return credentials
@@ -151,3 +153,14 @@ def credentialsSetup(credentials):
 
     print("")
     print("Credentials have been saved.")
+
+def getNewRefreshToken(url: str, oauth_token: str, runame: str):
+    url = urlparse(url)
+
+    try:
+        auth_code = parse_qs(url.query)['code'][0]
+    except KeyError as e:
+        print("Auth code not found, ensure the full eBay auth URL is provided")
+        return False
+
+    return APIrequest.getRefreshToken(auth_code, oauth_token, runame)

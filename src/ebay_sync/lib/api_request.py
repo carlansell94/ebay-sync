@@ -6,13 +6,7 @@ from urllib.request import Request, urlopen
 
 class APIrequest:
     @staticmethod
-    def getAccessToken(scope: str, refresh_token: str, oauth_token: str) -> str:
-        body = parse.urlencode({
-            'grant_type': 'refresh_token',
-            'refresh_token': refresh_token,
-            'scope': scope
-        }).encode()
-
+    def __getToken(body, oauth_token: str, token_type: str):
         req = Request('https://api.ebay.com/identity/v1/oauth2/token',
                         data=body)
         req.add_header('Content-Type', 'application/x-www-form-urlencoded')
@@ -20,10 +14,31 @@ class APIrequest:
 
         try:
             content = urlopen(req).read()
-            token = loads(content)['access_token']
+            token = loads(content)[token_type]
             return token
         except error.HTTPError as e:
-            body = e.read().decode()
+            body = loads(e.read().decode())
+            print(f"{body['error']}: {body['error_description']}")
+
+    @staticmethod
+    def getRefreshToken(auth_code: str, oauth_token: str, runame: str):
+        body = parse.urlencode({
+            'grant_type': 'authorization_code',
+            'redirect_uri': runame,
+            'code': auth_code
+        }).encode()
+
+        return APIrequest.__getToken(body, oauth_token, 'refresh_token')
+
+    @staticmethod
+    def getAccessToken(scope: str, refresh_token: str, oauth_token: str) -> str:
+        body = parse.urlencode({
+            'grant_type': 'refresh_token',
+            'refresh_token': refresh_token,
+            'scope': scope
+        }).encode()
+
+        return APIrequest.__getToken(body, oauth_token, 'access_token')
 
     @staticmethod
     def getRESTContent(endpoint: str, access_token: str) -> str:

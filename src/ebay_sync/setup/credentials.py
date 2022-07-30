@@ -40,6 +40,7 @@ class Credentials:
 
         return b64encode(enc_string.encode('ascii')).decode()
 
-    def updateRefreshToken(self, refresh_token: str) -> None:
-        setattr(self, 'ebay_refresh_token', refresh_token)
-        self.parser.set('ebay', 'refresh_token', refresh_token)
+    def setOptionValue(self, option: str, value: str) -> None:
+        setattr(self, option, value)
+        section, option = option.split("_", 1)
+        self.parser.set(section, option, value)
