@@ -23,18 +23,22 @@ class getFulfillment():
     def parse(self):
         m_fulfillment = Fulfillment(self.db)
 
-        if self.content is None:
-            tracking = self.uri.rsplit('/', 1)[1]
-
-            m_fulfillment.setFulfillmentId(tracking)
-            m_fulfillment.setTrackingId(tracking)
-            m_fulfillment.add()
+        if self.content:
+            id = self.content['shipmentTrackingNumber']
         else:
-            m_fulfillment.setFulfillmentId(self.content['fulfillmentId'])
-            m_fulfillment.setCarrier(self.content['shippingCarrierCode'])
-            m_fulfillment.setTrackingId(self.content['shipmentTrackingNumber'])
-            m_fulfillment.setFulfillmentDate(self.content['shippedDate'])
-            m_fulfillment.add()
+            id = self.uri.rsplit('/', 1)[1]
+        
+        m_fulfillment.setTrackingId(id)
 
-            m_fulfillment.setLineItemIds(self.content['lineItems'])
-            m_fulfillment.addLineItems()
+        if not m_fulfillment.alreadyExists():
+            if self.content:
+                m_fulfillment.setFulfillmentId(self.content['fulfillmentId'])
+                m_fulfillment.setCarrier(self.content['shippingCarrierCode'])
+                m_fulfillment.setFulfillmentDate(self.content['shippedDate'])
+                m_fulfillment.add()
+
+                m_fulfillment.setLineItemIds(self.content['lineItems'])
+                m_fulfillment.addLineItems()
+            else:
+                m_fulfillment.setTrackingId(id)
+                m_fulfillment.add()

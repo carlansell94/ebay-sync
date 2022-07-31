@@ -27,6 +27,24 @@ class Fulfillment():
         self.line_item_ids = value
         return self
 
+    def alreadyExists(self) -> bool:
+        query = self.db.cursor()
+        query.execute("""
+            SELECT
+                tracking_id
+            FROM fulfillment
+            WHERE tracking_id = %(tracking_id)s
+        """, {
+            'tracking_id': self.tracking_id
+        })
+
+        self.payment_id = query.fetchone()
+
+        if not self.payment_id:
+            return False
+
+        return True
+
     def add(self) -> None:
         query = self.db.cursor()
 
@@ -37,7 +55,7 @@ class Fulfillment():
             self.fulfillment_date = None
 
         query.execute("""
-            INSERT IGNORE INTO fulfillment (
+            INSERT INTO fulfillment (
                 fulfillment_id,
                 carrier,
                 tracking_id,
