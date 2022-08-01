@@ -15,10 +15,17 @@ class getFulfillment():
         return self
 
     def fetch(self):
-        oauth_token = self.credentials.getOauthToken()
-        access_token = APIrequest.getAccessToken(self.scope, self.credentials.ebay_refresh_token, oauth_token)
-        self.content = APIrequest.getRESTContent(self.uri, access_token)
-        return self
+        access_token = APIrequest.getAccessToken(
+            self.scope,
+            self.credentials.ebay_refresh_token,
+            self.credentials.getOauthToken()
+        )
+
+        if access_token:
+            self.content = APIrequest.getRESTContent(self.uri, access_token)
+            return self
+        else:
+            return None
 
     def parse(self):
         m_fulfillment = Fulfillment(self.db)

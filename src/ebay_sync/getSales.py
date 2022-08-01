@@ -16,10 +16,20 @@ class getSales:
         self.credentials = credentials
 
     def fetch(self):
-        oauth_token = self.credentials.getOauthToken()
-        access_token = APIrequest.getAccessToken(self.scope,self.credentials.ebay_refresh_token, oauth_token)
-        self.sales = APIrequest.getRESTContent(self.endpoint, access_token)
-        return self
+        access_token = APIrequest.getAccessToken(
+            self.scope,
+            self.credentials.ebay_refresh_token,
+            self.credentials.getOauthToken()
+        )
+
+        if access_token:
+            self.sales = APIrequest.getRESTContent(
+                self.endpoint,
+                access_token
+            )
+            return self
+        else:
+            return None
 
     def syncNeeded(self, order_id, api_last_updated) -> bool:
         db_last_updated = Sale.getLastUpdated(self.db, order_id)

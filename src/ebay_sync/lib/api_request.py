@@ -18,7 +18,7 @@ class APIrequest:
             return token
         except error.HTTPError as e:
             body = loads(e.read().decode())
-            print(f"{body['error']}: {body['error_description']}")
+            print(f"[ERROR] {body['error']}: {body['error_description']}")
 
     @staticmethod
     def getRefreshToken(auth_code: str, oauth_token: str, runame: str):
@@ -50,7 +50,8 @@ class APIrequest:
             json = loads(content)
             return json
         except error.HTTPError as e:
-            body = e.read().decode()
+            body = loads(e.read().decode())
+            print(f"[ERROR] {body['error']}: {body['error_description']}")
 
     @staticmethod
     def getXMLContent(call: str, credentials: dict, args: str) -> str:

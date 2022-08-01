@@ -42,29 +42,32 @@ def run_setup(credentials, args):
 
         if not db:
             print(
-                """Please run 'ebay_sync -s' or 'ebay_sync -c to """
+                """[ERROR] Please run 'ebay_sync -s' or 'ebay_sync -c to """
                 """create a new credentials file."""
             )
             exit()
         
         if not setup.installDb(db, credentials.client_name):
             print(
-                """Unable to install database, check the specified user """
-                """has the required privileges. Alternatively, load the """
-                """included schema.sql file into your database."""
+                """[ERROR] Unable to install database, check the specified """
+                """user has the required privileges. Alternatively, """
+                """load the included schema.sql file into your database."""
             )
         else:
-            print("Database installed successfully.")
+            print("[INFO] Database installed successfully.")
 
         exit()
 
     if args.test:
         if setup.checkAllCredentials(credentials):
-            print("Test completed successfully, credentials are valid.")
+            print(
+                """[INFO] Test completed successfully, credentials are """
+                """valid."""
+            )
         else:
             print(
-                """Errors found, please run ebay_sync -s or ebay_sync -c """
-                """to create a new credentials file."""
+                """[ERROR] Errors found, please run ebay_sync -s or """
+                """ebay_sync -c to create a new credentials file."""
             )
         exit()
 
@@ -87,10 +90,13 @@ def run_setup(credentials, args):
             )
             credentials.saveConfigFile()
 
-            print("eBay API refresh token has been updated successfully.")
+            print(
+                """[INFO] eBay API refresh token has been updated """
+                """successfully."""
+            )
         else:
             print(
-                """Unable to fetch a new refresh token, check the """
+                """[ERROR] Unable to fetch a new refresh token, check the """
                 """provided return URL is valid."""
             )
 
@@ -100,11 +106,17 @@ def runSync(credentials):
     db = getDbConnection(credentials)
 
     sales = getSales(db, credentials)
-    sales.fetch().parse()
+    sales = sales.fetch()
 
-    fulfillment = getFulfillment(db, credentials)
-    for uri in sales.getFulfillmentLinks():
-        fulfillment.setUri(uri).fetch().parse()
+    if sales:
+        sales.parse()
+        fulfillment = getFulfillment(db, credentials)
+        for uri in sales.getFulfillmentLinks():
+            fulfillment = fulfillment.setUri(uri).fetch()
+            if fulfillment:
+                fulfillment.parse()
+    else:
+        print("[ERROR] Failed to fetch sales data")
 
     legacy_order_ids = Sale.getLegacyOrderIds(db)
     for order_id in legacy_order_ids:
@@ -119,7 +131,7 @@ def getDbConnection(credentials):
             passwd=credentials.client_password
         )
     except Exception as e:
-        print(f"Error connecting to the database: {e}")
+        print(f"[ERROR] Unable to connect to the database: {e}")
         return False
 
     return db
@@ -135,8 +147,9 @@ def main():
         if (not credentials_loaded and not args.credentials
             and not args.setup):
             print(
-                """Credentials file not found. Please run 'ebay_sync -s'"""
-                """ or 'ebay_sync -c' to create the credentials file."""
+                """[ERROR] Credentials file not found. Please run """
+                """'ebay_sync -s' or 'ebay_sync -c' to create the """
+                """credentials file."""
             )
             exit()
         else:

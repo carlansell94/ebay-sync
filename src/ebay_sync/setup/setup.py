@@ -69,7 +69,7 @@ def checkDbCredentials(credentials: dict) -> bool:
             passwd=credentials['password']
         )
     except Exception as e:
-        print(f"Error connecting to the database: {e}")
+        print(f"[ERROR] Unable to connect to the database: {e}")
         return False
 
     return True
@@ -78,7 +78,7 @@ def checkEbayAPICredentials(refresh_token: str, oauth_token: str) -> bool:
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 
     if not APIrequest.getAccessToken(scope, refresh_token, oauth_token):
-        print("Error obtaining eBay API access token")
+        print("[ERROR] Unable to obtain eBay API access token")
         return False
 
     return True
@@ -112,7 +112,7 @@ def checkDbIsEmpty(db) -> bool:
     return False
 
 def installDb(db, db_name: str) -> bool:
-    print("Installing database...")
+    print("[INFO] Installing database...")
 
     if not checkDbIsEmpty(db):
         confirm = input(
@@ -152,7 +152,7 @@ def credentialsSetup(credentials):
     credentials.saveConfigFile()
 
     print("")
-    print("Credentials have been saved.")
+    print("[INFO] Credentials have been saved.")
 
 def getNewRefreshToken(url: str, oauth_token: str, runame: str):
     url = urlparse(url)
@@ -160,7 +160,10 @@ def getNewRefreshToken(url: str, oauth_token: str, runame: str):
     try:
         auth_code = parse_qs(url.query)['code'][0]
     except KeyError as e:
-        print("Auth code not found, ensure the full eBay auth URL is provided")
+        print(
+            """[ERROR] Auth code not found, ensure the full eBay auth URL """
+            """is provided."""
+        )
         return False
 
     return APIrequest.getRefreshToken(auth_code, oauth_token, runame)
