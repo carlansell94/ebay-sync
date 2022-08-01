@@ -47,5 +47,5 @@ class getFulfillment():
                 m_fulfillment.setLineItemIds(self.content['lineItems'])
                 m_fulfillment.addLineItems()
             else:
-                m_fulfillment.setTrackingId(id)
+                m_fulfillment.setFulfillmentId(id)
                 m_fulfillment.add()

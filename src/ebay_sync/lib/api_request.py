@@ -50,8 +50,7 @@ class APIrequest:
             json = loads(content)
             return json
         except error.HTTPError as e:
-            body = loads(e.read().decode())
-            print(f"[ERROR] {body['error']}: {body['error_description']}")
+            return None
 
     @staticmethod
     def getXMLContent(call: str, credentials: dict, args: str) -> str:
