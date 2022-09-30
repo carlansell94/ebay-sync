@@ -167,3 +167,6 @@ def getNewRefreshToken(url: str, oauth_token: str, runame: str):
         return False
 
     return APIrequest.getRefreshToken(auth_code, oauth_token, runame)
+
+def getNewAuthnauthToken() -> str:
+    return input("New Auth'n'auth token: ")

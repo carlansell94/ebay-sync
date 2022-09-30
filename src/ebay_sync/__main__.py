@@ -27,6 +27,8 @@ def getArgs():
         help="Install the database schema")
     parser_setup.add_argument("-r", "--refresh-token",
         help="Fetch a new refresh token using the provided auth URL")
+    parser_setup.add_argument("-a", "--authnauth-token",
+        help="Set a new authnauth token", action='store_true')
     parser_setup.add_argument("-t", "--test", action='store_true',
         help="Test the database/api credentials")
 
@@ -100,6 +102,14 @@ def run_setup(credentials, args):
                 """provided return URL is valid."""
             )
 
+        exit()
+
+    if args.authnauth_token:
+        credentials.setOptionValue(
+            'ebay_authnauth',
+            setup.getNewAuthnauthToken()
+        )
+        credentials.saveConfigFile()
         exit()
 
 def runSync(credentials):

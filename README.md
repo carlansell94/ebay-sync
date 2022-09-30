@@ -38,6 +38,7 @@ This can be used with a scheduler (such as cron) to periodically sync new data.
 | ```-i```       | Install the database schema |
 | ```-s```       | Sets up the credentials, and installs the database schema. Equivalent to running -c and -i |
 | ```-r "url"``` | Fetch a new API refresh token, using the provided auth URL |
+| ```-a```       | Add a new API Auth'n'Auth token |
 | ```-t```       | Test the database/API credentials |
 
 ## Initial Setup
