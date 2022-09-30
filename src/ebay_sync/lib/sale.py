@@ -5,6 +5,13 @@ from datetime import datetime
 class Sale():
     def __init__(self, db) -> None:
         self.db = db
+        self.order_id = None
+        self.legacy_order_id = None
+        self.sale_date = None
+        self.buyer_username = None
+        self.status = None
+        self.fee = None
+        self.last_updated = None
 
     def updateStatus(self, value: str) -> None:
         query = self.db.cursor()

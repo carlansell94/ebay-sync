@@ -3,6 +3,13 @@
 class Line():
     def __init__(self, db) -> None:
         self.db = db
+        self.order_id = None
+        self.item_id = None
+        self.line_item_id = None
+        self.title = None
+        self.sale_format = None
+        self.quantity = None
+        self.fulfillment_status = None
 
     def setOrderId(self, value: str):
         self.order_id = value

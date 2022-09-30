@@ -3,6 +3,14 @@
 class Address():
     def __init__(self, db) -> None:
         self.db = db
+        self.address_id = None
+        self.order_id = None
+        self.buyer_name = None
+        self.address_line_1 = None
+        self.city = None
+        self.county = None
+        self.post_code = None
+        self.country_code = None
 
     def setId(self, value: int):
         self.address_id = value

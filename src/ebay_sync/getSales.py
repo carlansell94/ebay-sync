@@ -14,6 +14,7 @@ class getSales:
     def __init__(self, db, credentials):
         self.db = db
         self.credentials = credentials
+        self.sales = None
 
     def fetch(self):
         access_token = APIrequest.getAccessToken(

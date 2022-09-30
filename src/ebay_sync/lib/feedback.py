@@ -3,6 +3,10 @@
 class Feedback():
     def __init__(self, db) -> None:
         self.db = db
+        self.legacy_order_id = None
+        self.feedback_id = None
+        self.feedback_type = None
+        self.comment = None
 
     def setLegacyOrderId(self, value: str):
         self.legacy_order_id = value

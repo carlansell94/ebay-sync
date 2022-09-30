@@ -5,6 +5,14 @@ from datetime import datetime
 class Refund():
     def __init__(self, db) -> None:
         self.db = db
+        self.id = None
+        self.processor_name = None
+        self.original_payment_id = None
+        self.date = None
+        self.amount = None
+        self.currency = None
+        self.fee = None
+        self.fee_currency = None
 
     def setId(self, value: int):
         self.id = value

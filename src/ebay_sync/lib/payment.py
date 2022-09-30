@@ -5,6 +5,17 @@ from datetime import datetime
 class Payment():
     def __init__(self, db) -> None:
         self.db = db
+        self.payment_id = None
+        self.order_id = None
+        self.processor_name = None
+        self.processor_id = None
+        self.payment_date = None
+        self.payment_amount = None
+        self.payment_currency = None
+        self.fee_amount = None
+        self.fee_currency = None
+        self.payment_status = None
+        self.update_date = None
 
     def setOrderId(self, value: str):
         self.order_id = value

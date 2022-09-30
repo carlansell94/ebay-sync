@@ -5,6 +5,12 @@ from datetime import datetime
 class Fulfillment():
     def __init__(self, db) -> None:
         self.db = db
+        self.fulfillment_id = None
+        self.carrier = None
+        self.tracking_id = None
+        self.fulfillment_date = None
+        self.line_item_ids = None
+        self.payment_id = None
 
     def setFulfillmentId(self, value: int):
         self.fulfillment_id = value

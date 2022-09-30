@@ -9,6 +9,8 @@ class getFulfillment():
     def __init__(self, db, credentials):
         self.db = db
         self.credentials = credentials
+        self.content = None
+        self.uri = None
 
     def setUri(self, uri):
         self.uri = uri
