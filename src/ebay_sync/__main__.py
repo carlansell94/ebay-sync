@@ -37,7 +37,7 @@ def getArgs():
 def run_setup(credentials, args):
     if args.credentials:
         setup.credentialsSetup(credentials)
-        exit()
+        sys.exit()
 
     if args.install:
         db = getDbConnection(credentials)
@@ -47,7 +47,7 @@ def run_setup(credentials, args):
                 """[ERROR] Please run 'ebay_sync -s' or 'ebay_sync -c to """
                 """create a new credentials file."""
             )
-            exit()
+            sys.exit()
         
         if not setup.installDb(db, credentials.client_name):
             print(
@@ -58,7 +58,7 @@ def run_setup(credentials, args):
         else:
             print("[INFO] Database installed successfully.")
 
-        exit()
+        sys.exit()
 
     if args.test:
         if setup.checkAllCredentials(credentials):
@@ -71,7 +71,7 @@ def run_setup(credentials, args):
                 """[ERROR] Errors found, please run ebay_sync -s or """
                 """ebay_sync -c to create a new credentials file."""
             )
-        exit()
+        sys.exit()
 
     if args.refresh_token is not None:
         oauth_token = credentials.getOauthToken(
@@ -102,7 +102,7 @@ def run_setup(credentials, args):
                 """provided return URL is valid."""
             )
 
-        exit()
+        sys.exit()
 
     if args.authnauth_token:
         credentials.setOptionValue(
@@ -110,7 +110,7 @@ def run_setup(credentials, args):
             setup.getNewAuthnauthToken()
         )
         credentials.saveConfigFile()
-        exit()
+        sys.exit()
 
 def runSync(credentials):
     db = getDbConnection(credentials)
@@ -162,7 +162,7 @@ def main():
                 """'ebay_sync -s' or 'ebay_sync -c' to create the """
                 """credentials file."""
             )
-            exit()
+            sys.exit()
         else:
             run_setup(credentials, args)
 
