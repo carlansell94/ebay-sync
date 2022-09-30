@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import xml.etree.ElementTree as ET
+from datetime import datetime
 
 from .lib.api_request import APIrequest
 from .lib.feedback import Feedback
@@ -10,7 +11,7 @@ class getFeedback:
         self.db = db
         self.credentials = credentials
 
-    def fetch(self, order_id):
+    def fetch(self, order_id) -> bool:
         item_id, transaction_id = order_id.split('-')
 
         args = (
@@ -26,6 +27,10 @@ class getFeedback:
 
         content = APIrequest.getXMLContent('GetFeedback', self.credentials, args)
         root = ET.fromstring(content)
+
+        if root.findtext('{urn:ebay:apis:eBLBaseComponents}Ack') == 'Failure':
+            self.error(root)
+            return False
 
         feedback = Feedback(self.db)
         feedback.setLegacyOrderId(order_id)
@@ -44,3 +49,16 @@ class getFeedback:
             ))
 
             feedback.add()
+
+        return True
+
+    def error(self, response) -> None:
+        dt = datetime.now()
+        timestamp = dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        for error in response.iter('{urn:ebay:apis:eBLBaseComponents}Errors'):
+            classification = error.findtext('{urn:ebay:apis:eBLBaseComponents}ErrorClassification')
+            code = error.findtext('{urn:ebay:apis:eBLBaseComponents}ErrorCode')
+            message = error.findtext('{urn:ebay:apis:eBLBaseComponents}LongMessage')
+
+            print(f"[{timestamp}] [ERROR] Unable to sync feedback. {classification}: {message} ({code})")
