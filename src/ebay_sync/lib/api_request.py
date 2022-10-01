@@ -6,7 +6,7 @@ from urllib.request import Request, urlopen
 
 class APIrequest:
     @staticmethod
-    def __getToken(body, oauth_token: str, token_type: str):
+    def _get_token(body: str, oauth_token: str, token_type: str):
         req = Request('https://api.ebay.com/identity/v1/oauth2/token',
                         data=body)
         req.add_header('Content-Type', 'application/x-www-form-urlencoded')
@@ -21,27 +21,27 @@ class APIrequest:
             print(f"[ERROR] {body['error']}: {body['error_description']}")
 
     @staticmethod
-    def getRefreshToken(auth_code: str, oauth_token: str, runame: str):
+    def get_refresh_token(auth_code: str, oauth_token: str, runame: str):
         body = parse.urlencode({
             'grant_type': 'authorization_code',
             'redirect_uri': runame,
             'code': auth_code
         }).encode()
 
-        return APIrequest.__getToken(body, oauth_token, 'refresh_token')
+        return APIrequest._get_token(body, oauth_token, 'refresh_token')
 
     @staticmethod
-    def getAccessToken(scope: str, refresh_token: str, oauth_token: str) -> str:
+    def get_access_token(scope: str, refresh_token: str, oauth_token: str) -> str:
         body = parse.urlencode({
             'grant_type': 'refresh_token',
             'refresh_token': refresh_token,
             'scope': scope
         }).encode()
 
-        return APIrequest.__getToken(body, oauth_token, 'access_token')
+        return APIrequest._get_token(body, oauth_token, 'access_token')
 
     @staticmethod
-    def getRESTContent(endpoint: str, access_token: str) -> str:
+    def get_rest_content(endpoint: str, access_token: str) -> str:
         req = Request(endpoint)
         req.add_header('Authorization', 'Bearer ' + access_token)
 
@@ -53,7 +53,7 @@ class APIrequest:
             return None
 
     @staticmethod
-    def getXMLContent(call: str, credentials: dict, args: str) -> str:
+    def get_xml_content(call: str, credentials: dict, args: str) -> str:
         compat_level = 1119
         site_id = 3
 

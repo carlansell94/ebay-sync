@@ -13,7 +13,7 @@ class Sale():
         self.fee = None
         self.last_updated = None
 
-    def updateStatus(self, value: str) -> None:
+    def update_status(self, value: str) -> None:
         query = self.db.cursor()
         query.execute("""
             UPDATE sale
@@ -24,32 +24,32 @@ class Sale():
             'order_id': self.order_id
         })
 
-    def setOrderId(self, value: str):
+    def set_order_id(self, value: str):
         self.order_id = value
         return self
 
-    def setLegacyOrderId(self, value: str):
+    def set_legacy_order_id(self, value: str):
         self.legacy_order_id = value
         return self
 
-    def setSaleDate(self, value: str):
+    def set_sale_date(self, value: str):
         self.sale_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
         return self
 
-    def setBuyerUsername(self, value: str):
+    def set_buyer_username(self, value: str):
         self.buyer_username = value
         return self
 
-    def setStatus(self, value: str):
+    def set_status(self, value: str):
         self.status = value
         return self
 
-    def setFee(self, value):
+    def set_fee(self, value):
         self.fee = value
         return self
 
-    def setLastUpdated(self, value: str):
+    def set_last_updated(self, value: str):
         self.last_updated = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                                 .strftime("%Y-%m-%d %H:%M:%S"))
         return self
@@ -90,7 +90,7 @@ class Sale():
         self.db.commit()
 
     @staticmethod
-    def getLastUpdated(db, order_id: str):
+    def get_last_updated(db, order_id: str):
         query = db.cursor()
         query.execute("""SELECT
             last_updated
@@ -106,7 +106,7 @@ class Sale():
         return query.fetchall()
 
     @staticmethod
-    def getLegacyOrderIds(db):
+    def get_legacy_order_ids(db):
         query = db.cursor()
         query.execute("SELECT legacy_order_id FROM sale")
         return query.fetchall()

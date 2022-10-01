@@ -17,57 +17,57 @@ class Payment():
         self.payment_status = None
         self.update_date = None
 
-    def setOrderId(self, value: str):
+    def set_order_id(self, value: str):
         self.order_id = value
         return self
 
-    def setProcessorName(self, value: str):
+    def set_processor_name(self, value: str):
         self.processor_name = value
         return self
 
-    def setProcessorId(self, value: str):
+    def set_processor_id(self, value: str):
         self.processor_id = value
         return self
 
-    def setPaymentDate(self, value: str):
+    def set_payment_date(self, value: str):
         self.payment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
 
         return self
 
-    def setPaymentAmount(self, value):
+    def set_payment_amount(self, value):
         self.payment_amount = value
         return self
 
-    def setPaymentCurrency(self, value: str):
+    def set_payment_currency(self, value: str):
         self.payment_currency = value
         return self
 
-    def setFeeAmount(self, value):
+    def set_fee_amount(self, value):
         self.fee_amount = value
         return self
 
-    def setFeeCurrency(self, value: str):
+    def set_fee_currency(self, value: str):
         self.fee_currency = value
         return self
 
-    def setPaymentStatus(self, value: str):
+    def set_payment_status(self, value: str):
         self.payment_status = value
         return self
 
-    def setUpdateDate(self, value: str):
+    def set_update_date(self, value: str):
         self.update_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
 
         return self
 
-    def getPaymentId(self) -> int:
+    def get_payment_id(self) -> int:
         if not self.payment_id:
             return False
 
         return self.payment_id
 
-    def addItems(self, items: dict) -> None:
+    def add_items(self, items: dict) -> None:
         for item in items:
             query = self.db.cursor()
             query.execute("""
@@ -97,7 +97,7 @@ class Payment():
 
             self.db.commit()
 
-    def alreadyExists(self) -> bool:
+    def already_exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT payment_id
@@ -116,7 +116,7 @@ class Payment():
 
         return True
 
-    def updateItems(self, items: dict) -> None:
+    def update_items(self, items: dict) -> None:
         for item in items:
             query = self.db.cursor()
             query.execute("""

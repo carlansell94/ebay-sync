@@ -12,39 +12,39 @@ class Address():
         self.post_code = None
         self.country_code = None
 
-    def setId(self, value: int):
+    def set_id(self, value: int):
         self.address_id = value
         return self
 
-    def setOrderId(self, value: str):
+    def set_order_id(self, value: str):
         self.order_id = value
         return self
 
-    def setBuyerName(self, value: str):
+    def set_buyer_name(self, value: str):
         self.buyer_name = value
         return self
 
-    def setAddressLine1(self, value: str):
+    def set_address_line_1(self, value: str):
         self.address_line_1 = value
         return self
 
-    def setCity(self, value: str):
+    def set_city(self, value: str):
         self.city = value
         return self
 
-    def setCounty(self, value: str):
+    def set_county(self, value: str):
         self.county = value
         return self
 
-    def setPostCode(self, value: str):
+    def set_post_code(self, value: str):
         self.post_code = value
         return self
 
-    def setCountryCode(self, value: str):
+    def set_country_code(self, value: str):
         self.country_code = value
         return self
 
-    def alreadyExists(self) -> bool:
+    def already_exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT address_id
@@ -67,7 +67,7 @@ class Address():
 
         return True
 
-    def add(self) -> None:
+    def add(self) -> int:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO addresses (
@@ -98,7 +98,7 @@ class Address():
 
         return query.lastrowid
 
-    def addOrder(self) -> None:
+    def add_order(self) -> None:
         query = self.db.cursor()
         query.execute("""
             INSERT INTO sale_address (

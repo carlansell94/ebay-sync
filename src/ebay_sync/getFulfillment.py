@@ -12,19 +12,19 @@ class getFulfillment():
         self.content = None
         self.uri = None
 
-    def setUri(self, uri):
+    def set_uri(self, uri):
         self.uri = uri
         return self
 
     def fetch(self):
-        access_token = APIrequest.getAccessToken(
+        access_token = APIrequest.get_access_token(
             self.scope,
             self.credentials.ebay_refresh_token,
-            self.credentials.getOauthToken()
+            self.credentials.get_oauth_token()
         )
 
         if access_token:
-            self.content = APIrequest.getRESTContent(self.uri, access_token)
+            self.content = APIrequest.get_rest_content(self.uri, access_token)
             return self
         else:
             return None
@@ -37,17 +37,17 @@ class getFulfillment():
         else:
             id = self.uri.rsplit('/', 1)[1]
         
-        m_fulfillment.setTrackingId(id)
+        m_fulfillment.set_tracking_id(id)
 
-        if not m_fulfillment.alreadyExists():
+        if not m_fulfillment.already_exists():
             if self.content:
-                m_fulfillment.setFulfillmentId(self.content['fulfillmentId'])
-                m_fulfillment.setCarrier(self.content['shippingCarrierCode'])
-                m_fulfillment.setFulfillmentDate(self.content['shippedDate'])
+                m_fulfillment.set_fulfillment_id(self.content['fulfillmentId'])
+                m_fulfillment.set_carrier(self.content['shippingCarrierCode'])
+                m_fulfillment.set_fulfillment_date(self.content['shippedDate'])
                 m_fulfillment.add()
 
-                m_fulfillment.setLineItemIds(self.content['lineItems'])
-                m_fulfillment.addLineItems()
+                m_fulfillment.set_line_item_ids(self.content['lineItems'])
+                m_fulfillment.add_line_items()
             else:
-                m_fulfillment.setFulfillmentId(id)
+                m_fulfillment.set_fulfillment_id(id)
                 m_fulfillment.add()

@@ -12,7 +12,7 @@ from .lib.sale import Sale
 from .setup import setup
 from .setup.credentials import Credentials
 
-def getArgs():
+def get_args():
     parser = argparse.ArgumentParser(
         prog="ebay_sync",
         description='Sync sales data from eBay using the eBay developer API'
@@ -36,11 +36,11 @@ def getArgs():
 
 def run_setup(credentials, args):
     if args.credentials:
-        setup.credentialsSetup(credentials)
+        setup.credentials_setup(credentials)
         sys.exit()
 
     if args.install:
-        db = getDbConnection(credentials)
+        db = get_db_connection(credentials)
 
         if not db:
             print(
@@ -49,7 +49,7 @@ def run_setup(credentials, args):
             )
             sys.exit()
         
-        if not setup.installDb(db, credentials.client_name):
+        if not setup.install_db(db, credentials.client_name):
             print(
                 """[ERROR] Unable to install database, check the specified """
                 """user has the required privileges. Alternatively, """
@@ -61,7 +61,7 @@ def run_setup(credentials, args):
         sys.exit()
 
     if args.test:
-        if setup.checkAllCredentials(credentials):
+        if setup.check_all_credentials(credentials):
             print(
                 """[INFO] Test completed successfully, credentials are """
                 """valid."""
@@ -74,23 +74,23 @@ def run_setup(credentials, args):
         sys.exit()
 
     if args.refresh_token is not None:
-        oauth_token = credentials.getOauthToken(
+        oauth_token = credentials.get_oauth_token(
             credentials.ebay_app_id,
             credentials.ebay_cert_id
         )
 
-        new_refresh_token = setup.getNewRefreshToken(
+        new_refresh_token = setup.get_new_refresh_token(
             args.refresh_token,
             oauth_token,
             credentials.ebay_redirect_url
         )
 
         if new_refresh_token:
-            credentials.setOptionValue(
+            credentials.set_option_value(
                 'ebay_refresh_token',
                 new_refresh_token
             )
-            credentials.saveConfigFile()
+            credentials.save_config_file()
 
             print(
                 """[INFO] eBay API refresh token has been updated """
@@ -105,15 +105,15 @@ def run_setup(credentials, args):
         sys.exit()
 
     if args.authnauth_token:
-        credentials.setOptionValue(
+        credentials.set_option_value(
             'ebay_authnauth',
-            setup.getNewAuthnauthToken()
+            setup.get_new_authnauth_token()
         )
         credentials.saveConfigFile()
         sys.exit()
 
-def runSync(credentials):
-    db = getDbConnection(credentials)
+def run_sync(credentials):
+    db = get_db_connection(credentials)
 
     sales = getSales(db, credentials)
     sales = sales.fetch()
@@ -121,20 +121,20 @@ def runSync(credentials):
     if sales:
         sales.parse()
         fulfillment = getFulfillment(db, credentials)
-        for uri in sales.getFulfillmentLinks():
-            fulfillment = fulfillment.setUri(uri).fetch()
+        for uri in sales.get_fulfillment_links():
+            fulfillment = fulfillment.set_uri(uri).fetch()
             if fulfillment:
                 fulfillment.parse()
     else:
         print("[ERROR] Failed to fetch sales data")
 
-    legacy_order_ids = Sale.getLegacyOrderIds(db)
+    legacy_order_ids = Sale.get_legacy_order_ids(db)
     for order_id in legacy_order_ids:
         if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
             if not getFeedback(db, credentials).fetch(order_id[0]):
                 break
 
-def getDbConnection(credentials):
+def get_db_connection(credentials):
     try:
         db = MySQLdb.connect(
             db=credentials.client_name,
@@ -149,11 +149,11 @@ def getDbConnection(credentials):
 
 def main():
     credentials = Credentials()
-    credentials_loaded = credentials.readConfigFile()
-    args = getArgs()
+    credentials_loaded = credentials.read_config_file()
+    args = get_args()
 
     if len(sys.argv) == 1:
-        runSync(credentials)
+        run_sync(credentials)
     else:
         if (not credentials_loaded and not args.credentials
             and not args.setup):

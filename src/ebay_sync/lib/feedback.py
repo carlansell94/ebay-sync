@@ -8,19 +8,19 @@ class Feedback():
         self.feedback_type = None
         self.comment = None
 
-    def setLegacyOrderId(self, value: str):
+    def set_legacy_order_id(self, value: str):
         self.legacy_order_id = value
         return self
 
-    def setFeedbackId(self, value: int):
+    def set_feedback_id(self, value: int):
         self.feedback_id = value
         return self
 
-    def setFeedbackType(self, value: str):
+    def set_feedback_type(self, value: str):
         self.feedback_type = value
         return self
 
-    def setComment(self, value: str):
+    def set_comment(self, value: str):
         self.comment = value.encode("utf-8")
         return self
 

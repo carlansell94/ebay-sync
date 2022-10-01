@@ -25,7 +25,7 @@ class getFeedback:
             "<OutputSelector>FeedbackID</OutputSelector>"
         )
 
-        content = APIrequest.getXMLContent('GetFeedback', self.credentials, args)
+        content = APIrequest.get_xml_content('GetFeedback', self.credentials, args)
         root = ET.fromstring(content)
 
         if root.findtext('{urn:ebay:apis:eBLBaseComponents}Ack') == 'Failure':
@@ -33,18 +33,18 @@ class getFeedback:
             return False
 
         feedback = Feedback(self.db)
-        feedback.setLegacyOrderId(order_id)
+        feedback.set_legacy_order_id(order_id)
 
         for fb in root.iter('{urn:ebay:apis:eBLBaseComponents}FeedbackDetail'):
-            feedback.setFeedbackId(fb.findtext(
+            feedback.set_feedback_id(fb.findtext(
                 '{urn:ebay:apis:eBLBaseComponents}FeedbackID'
             ))
 
-            feedback.setComment(fb.findtext(
+            feedback.set_comment(fb.findtext(
                 '{urn:ebay:apis:eBLBaseComponents}CommentText'
             ))
 
-            feedback.setFeedbackType(fb.findtext(
+            feedback.set_feedback_type(fb.findtext(
                 '{urn:ebay:apis:eBLBaseComponents}CommentType'
             ))
 

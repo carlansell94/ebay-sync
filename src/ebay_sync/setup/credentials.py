@@ -9,7 +9,7 @@ class Credentials:
         self.parser = ConfigParser()
         self.filepath = str(Path(__file__).parent.absolute()) + '/credentials.ini'
 
-    def readConfigFile(self) -> bool:
+    def read_config_file(self) -> bool:
         config = self.parser.read(self.filepath)
 
         if not config:
@@ -22,17 +22,17 @@ class Credentials:
 
             return True
 
-    def setConfig(self, config: dict) -> None:
+    def set_config(self, config: dict) -> None:
         for section, entry in config.items():
             for option, value in entry.items():
                 self.parser[section] = entry
                 setattr(self, section + '_' + option, value)
 
-    def saveConfigFile(self):
+    def save_config_file(self):
         with open(self.filepath, 'w') as config_file:
             self.parser.write(config_file)
 
-    def getOauthToken(self, app_id=None, cert_id=None):
+    def get_oauth_token(self, app_id=None, cert_id=None):
         if app_id:
             enc_string = f"{app_id}:{cert_id}"
         else:
@@ -40,7 +40,7 @@ class Credentials:
 
         return b64encode(enc_string.encode('ascii')).decode()
 
-    def setOptionValue(self, option: str, value: str) -> None:
+    def set_option_value(self, option: str, value: str) -> None:
         setattr(self, option, value)
         section, option = option.split("_", 1)
         self.parser.set(section, option, value)

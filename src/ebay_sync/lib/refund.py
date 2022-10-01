@@ -14,41 +14,41 @@ class Refund():
         self.fee = None
         self.fee_currency = None
 
-    def setId(self, value: int):
+    def set_id(self, value: int):
         self.id = value
         return self
 
-    def setProcessorName(self, value: str):
+    def set_processor_name(self, value: str):
         self.processor_name = value
         return self
 
-    def setOriginalPaymentId(self, value: int):
+    def set_original_payment_id(self, value: int):
         self.original_payment_id = value
         return self
 
-    def setDate(self, value: str):
+    def set_date(self, value: str):
         self.date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                         .strftime("%Y-%m-%d %H:%M:%S"))
 
         return self
 
-    def setAmount(self, value):
+    def set_amount(self, value):
         self.amount = value
         return self
 
-    def setCurrency(self, value: str):
+    def set_currency(self, value: str):
         self.currency = value
         return self
 
-    def setFee(self, value):
+    def set_fee(self, value):
         self.fee = value
         return self
 
-    def setFeeCurrency(self, value: str):
+    def set_fee_currency(self, value: str):
         self.fee_currency = value
         return self
 
-    def alreadyExists(self) -> bool:
+    def already_exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT

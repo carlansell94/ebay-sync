@@ -32,7 +32,7 @@ def __import_schema(db_name) -> bool:
 
     return True
 
-def getDbCredentials() -> dict:
+def get_db_credentials() -> dict:
     print("")
     print("--- DATABASE CREDENTIALS ---")
     print("----------------------------")
@@ -45,7 +45,7 @@ def getDbCredentials() -> dict:
 
     return credentials
 
-def getEbayAPICredentials() -> dict:
+def get_ebay_api_credentials() -> dict:
     print("")
     print("--- EBAY API CREDENTIALS ---")
     print("----------------------------")
@@ -61,7 +61,7 @@ def getEbayAPICredentials() -> dict:
 
     return credentials
 
-def checkDbCredentials(credentials: dict) -> bool:
+def check_db_credentials(credentials: dict) -> bool:
     try:
         MySQLdb.connect(
             db=credentials['name'],
@@ -74,27 +74,27 @@ def checkDbCredentials(credentials: dict) -> bool:
 
     return True
 
-def checkEbayAPICredentials(refresh_token: str, oauth_token: str) -> bool:
+def check_ebay_api_credentials(refresh_token: str, oauth_token: str) -> bool:
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 
-    if not APIrequest.getAccessToken(scope, refresh_token, oauth_token):
+    if not APIrequest.get_access_token(scope, refresh_token, oauth_token):
         print("[ERROR] Unable to obtain eBay API access token")
         return False
 
     return True
 
-def checkAllCredentials(credentials: dict) -> bool:
+def check_all_credentials(credentials: dict) -> bool:
     valid = True
 
-    if not checkDbCredentials(credentials):
+    if not check_db_credentials(credentials):
         valid = False
     
-    oauth_token = credentials.getOauthToken(
+    oauth_token = credentials.get_oauth_token(
         credentials.ebay_app_id,
         credentials.ebay_cert_id
     )
 
-    if not checkEbayAPICredentials(
+    if not check_ebay_api_credentials(
         credentials.ebay_refresh_token,
         oauth_token
     ):
@@ -102,7 +102,7 @@ def checkAllCredentials(credentials: dict) -> bool:
     
     return valid
 
-def checkDbIsEmpty(db) -> bool:
+def check_db_is_empty(db) -> bool:
     query = db.cursor()
     query.execute("""SHOW TABLES""")
     
@@ -111,10 +111,10 @@ def checkDbIsEmpty(db) -> bool:
     
     return False
 
-def installDb(db, db_name: str) -> bool:
+def install_db(db, db_name: str) -> bool:
     print("[INFO] Installing database...")
 
-    if not checkDbIsEmpty(db):
+    if not check_db_is_empty(db):
         confirm = input(
             """Database is not empty. Continuing will drop existing """
             """tables used by this app. Do you want to continue? (y/n): """
@@ -125,36 +125,36 @@ def installDb(db, db_name: str) -> bool:
 
     return __import_schema(db_name)
 
-def credentialsSetup(credentials):
-    db_credentials = getDbCredentials()
+def credentials_setup(credentials):
+    db_credentials = get_db_credentials()
 
-    while not checkDbCredentials(db_credentials):
-        db_credentials = getDbCredentials()
+    while not check_db_credentials(db_credentials):
+        db_credentials = get_db_credentials()
 
-    ebay_credentials = getEbayAPICredentials()
-    oauth_token = credentials.getOauthToken(
+    ebay_credentials = get_ebay_api_credentials()
+    oauth_token = credentials.get_oauth_token(
         ebay_credentials['app_id'],
         ebay_credentials['cert_id']
     )
 
-    while not checkEbayAPICredentials(
+    while not check_ebay_api_credentials(
         ebay_credentials['refresh_token'],
         oauth_token
     ):
-        ebay_credentials = getEbayAPICredentials()
+        ebay_credentials = get_ebay_api_credentials()
 
     config = {
         'client': db_credentials,
         'ebay': ebay_credentials
     }
 
-    credentials.setConfig(config)
-    credentials.saveConfigFile()
+    credentials.set_config(config)
+    credentials.save_config_file()
 
     print("")
     print("[INFO] Credentials have been saved.")
 
-def getNewRefreshToken(url: str, oauth_token: str, runame: str):
+def get_new_refresh_token(url: str, oauth_token: str, runame: str):
     url = urlparse(url)
 
     try:
@@ -166,7 +166,7 @@ def getNewRefreshToken(url: str, oauth_token: str, runame: str):
         )
         return False
 
-    return APIrequest.getRefreshToken(auth_code, oauth_token, runame)
+    return APIrequest.get_refresh_token(auth_code, oauth_token, runame)
 
-def getNewAuthnauthToken() -> str:
+def get_new_authnauth_token() -> str:
     return input("New Auth'n'auth token: ")

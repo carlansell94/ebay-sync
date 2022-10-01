@@ -12,28 +12,28 @@ class Fulfillment():
         self.line_item_ids = None
         self.payment_id = None
 
-    def setFulfillmentId(self, value: int):
+    def set_fulfillment_id(self, value: int):
         self.fulfillment_id = value
         return self
 
-    def setCarrier(self, value: str):
+    def set_carrier(self, value: str):
         self.carrier = value
         return self
 
-    def setTrackingId(self, value: str):
+    def set_tracking_id(self, value: str):
         self.tracking_id = value
         return self
 
-    def setFulfillmentDate(self, value: str):
+    def set_fulfillment_date(self, value: str):
         self.fulfillment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
                             .strftime("%Y-%m-%d %H:%M:%S"))
         return self
 
-    def setLineItemIds(self, value: dict):
+    def set_line_item_ids(self, value: dict):
         self.line_item_ids = value
         return self
 
-    def alreadyExists(self) -> bool:
+    def already_exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT
@@ -81,7 +81,7 @@ class Fulfillment():
 
         self.db.commit()
 
-    def addLineItems(self) -> None:
+    def add_line_items(self) -> None:
         for item in self.line_item_ids:
             line_item_id = item['lineItemId']
 

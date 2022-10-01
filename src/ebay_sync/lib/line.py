@@ -11,31 +11,31 @@ class Line():
         self.quantity = None
         self.fulfillment_status = None
 
-    def setOrderId(self, value: str):
+    def set_order_id(self, value: str):
         self.order_id = value
         return self
 
-    def setItemId(self, value: int):
+    def set_item_id(self, value: int):
         self.item_id = value
         return self
 
-    def setLineItemId(self, value: int):
+    def set_line_item_id(self, value: int):
         self.line_item_id = value
         return self
 
-    def setTitle(self, value: str):
+    def set_title(self, value: str):
         self.title = value
         return self
 
-    def setSaleFormat(self, value: str):
+    def set_sale_format(self, value: str):
         self.sale_format = value
         return self
 
-    def setQuantity(self, value: int):
+    def set_quantity(self, value: int):
         self.quantity = value
         return self
 
-    def setFulfillmentStatus(self, value: str):
+    def set_fulfillment_status(self, value: str):
         self.fulfillment_status = value
         return self
 
