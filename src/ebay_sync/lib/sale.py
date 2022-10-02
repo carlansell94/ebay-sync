@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class Sale():
     def __init__(self, db) -> None:
@@ -106,7 +106,13 @@ class Sale():
         return query.fetchall()
 
     @staticmethod
-    def get_legacy_order_ids(db):
+    def get_legacy_order_ids(db, days: int = None):
         query = db.cursor()
-        query.execute("SELECT legacy_order_id FROM sale")
+        query_string = "SELECT legacy_order_id FROM sale"
+
+        if (days):
+            start_date = datetime.today() - timedelta(days=days)
+            query_string += " WHERE sale_date >= '" + start_date.strftime("%Y-%m-%d %H:%M:%S") + "'"
+
+        query.execute(query_string)
         return query.fetchall()

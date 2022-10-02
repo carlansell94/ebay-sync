@@ -128,7 +128,8 @@ def run_sync(credentials):
     else:
         print("[ERROR] Failed to fetch sales data")
 
-    legacy_order_ids = Sale.get_legacy_order_ids(db)
+    days_to_leave_feedback = 60
+    legacy_order_ids = Sale.get_legacy_order_ids(db, days_to_leave_feedback)
     for order_id in legacy_order_ids:
         if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
             if not GetFeedback(db, credentials).fetch(order_id[0]):
