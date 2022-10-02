@@ -7,7 +7,7 @@ from .lib.payment import Payment
 from .lib.refund import Refund
 from .lib.sale import Sale
 
-class getSales:
+class GetSales:
     endpoint = 'https://api.ebay.com/sell/fulfillment/v1/order'
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 

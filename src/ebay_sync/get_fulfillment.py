@@ -3,7 +3,7 @@
 from .lib.api_request import APIrequest
 from .lib.fulfillment import Fulfillment
 
-class getFulfillment():
+class GetFulfillment():
     scope = 'https://api.ebay.com/oauth/api_scope/sell.fulfillment'
 
     def __init__(self, db, credentials):

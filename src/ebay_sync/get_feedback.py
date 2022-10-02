@@ -6,7 +6,7 @@ from datetime import datetime
 from .lib.api_request import APIrequest
 from .lib.feedback import Feedback
 
-class getFeedback:
+class GetFeedback:
     def __init__(self, db, credentials):
         self.db = db
         self.credentials = credentials

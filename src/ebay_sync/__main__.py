@@ -5,9 +5,9 @@ import sys
 import re
 import argparse
 
-from .getFeedback import getFeedback
-from .getFulfillment import getFulfillment
-from .getSales import getSales
+from .get_feedback import GetFeedback
+from .get_fulfillment import GetFulfillment
+from .get_sales import GetSales
 from .lib.sale import Sale
 from .setup import setup
 from .setup.credentials import Credentials
@@ -115,12 +115,12 @@ def run_setup(credentials, args):
 def run_sync(credentials):
     db = get_db_connection(credentials)
 
-    sales = getSales(db, credentials)
+    sales = GetSales(db, credentials)
     sales = sales.fetch()
 
     if sales:
         sales.parse()
-        fulfillment = getFulfillment(db, credentials)
+        fulfillment = GetFulfillment(db, credentials)
         for uri in sales.get_fulfillment_links():
             fulfillment = fulfillment.set_uri(uri).fetch()
             if fulfillment:
@@ -131,7 +131,7 @@ def run_sync(credentials):
     legacy_order_ids = Sale.get_legacy_order_ids(db)
     for order_id in legacy_order_ids:
         if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
-            if not getFeedback(db, credentials).fetch(order_id[0]):
+            if not GetFeedback(db, credentials).fetch(order_id[0]):
                 break
 
 def get_db_connection(credentials):
