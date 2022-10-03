@@ -109,7 +109,7 @@ def run_setup(credentials, args):
             'ebay_authnauth',
             setup.get_new_authnauth_token()
         )
-        credentials.saveConfigFile()
+        credentials.save_config_file()
         sys.exit()
 
 def run_sync(credentials):
