@@ -7,6 +7,7 @@ class Address():
         self.order_id = None
         self.buyer_name = None
         self.address_line_1 = None
+        self.address_line_2 = None
         self.city = None
         self.county = None
         self.post_code = None
@@ -26,6 +27,10 @@ class Address():
 
     def set_address_line_1(self, value: str):
         self.address_line_1 = value
+        return self
+
+    def set_address_line_2(self, value: str):
+        self.address_line_2 = value
         return self
 
     def set_city(self, value: str):
@@ -73,6 +78,7 @@ class Address():
             INSERT INTO addresses (
                 buyer_name,
                 address_line_1,
+                address_line_2,
                 city,
                 county,
                 post_code,
@@ -80,6 +86,7 @@ class Address():
             ) VALUES (
                 %(buyer_name)s,
                 %(address_line_1)s,
+                %(address_line_2)s,
                 %(city)s,
                 %(county)s,
                 %(post_code)s,
@@ -88,6 +95,7 @@ class Address():
         """, {
             'buyer_name': self.buyer_name,
             'address_line_1': self.address_line_1,
+            'address_line_2': self.address_line_2,
             'city': self.city,
             'county': self.county,
             'post_code': self.post_code,

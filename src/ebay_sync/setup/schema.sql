@@ -41,6 +41,7 @@ CREATE TABLE `addresses` (
   `address_id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `buyer_name` varchar(64) NOT NULL,
   `address_line_1` varchar(64) NOT NULL,
+  `address_line_2` varchar(250) DEFAULT NULL,
   `city` varchar(128) NOT NULL,
   `county` varchar(64) DEFAULT NULL,
   `post_code` varchar(9) NOT NULL,

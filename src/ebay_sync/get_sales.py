@@ -135,6 +135,7 @@ class GetSales:
         m_address.set_order_id(order_id)
         m_address.set_buyer_name(address['fullName'])
         m_address.set_address_line_1(address['contactAddress']['addressLine1'])
+        m_address.set_address_line_2(address['contactAddress']['addressLine2'])
         m_address.set_city(address['contactAddress']['city'])
 
         try:
