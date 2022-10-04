@@ -116,20 +116,20 @@ def run_sync(credentials):
     db = get_db_connection(credentials)
 
     sales = GetSales(db, credentials)
-    sales = sales.fetch()
-
-    if sales:
+    if sales := sales.fetch():
         sales.parse()
-        fulfillment = GetFulfillment(db, credentials)
-        for uri in sales.get_fulfillment_links():
-            fulfillment = fulfillment.set_uri(uri).fetch()
-            if fulfillment:
-                fulfillment.parse()
     else:
         print("[ERROR] Failed to fetch sales data")
 
-    days_to_leave_feedback = 60
-    legacy_order_ids = Sale.get_legacy_order_ids(db, days_to_leave_feedback)
+    fulfillment = GetFulfillment(db, credentials)
+    for order_id in Sale.get_order_ids(db, days=90):    # 90 day API limit
+        if fulfillment.fetch(order_id[0]):
+            fulfillment.parse()
+        else:
+            print("""[ERROR] Failed to fetch fulfillment data for """
+                  f"""order {order_id[0]}""")
+
+    legacy_order_ids = Sale.get_order_ids(db, days=60, legacy_ids=True)
     for order_id in legacy_order_ids:
         if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
             if not GetFeedback(db, credentials).fetch(order_id[0]):

@@ -9,8 +9,7 @@ class Fulfillment():
         self.carrier = None
         self.tracking_id = None
         self.fulfillment_date = None
-        self.line_item_ids = None
-        self.payment_id = None
+        self.line_item_id = None
 
     def set_fulfillment_id(self, value: int):
         self.fulfillment_id = value
@@ -29,27 +28,48 @@ class Fulfillment():
                             .strftime("%Y-%m-%d %H:%M:%S"))
         return self
 
-    def set_line_item_ids(self, value: dict):
-        self.line_item_ids = value
+    def set_line_item_id(self, value: int):
+        self.line_item_id = value
         return self
 
     def already_exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT
-                tracking_id
-            FROM fulfillment
-            WHERE tracking_id = %(tracking_id)s
+                fulfillment_id
+            FROM
+                fulfillment
+            WHERE
+                fulfillment_id = %(fulfillment_id)s
         """, {
-            'tracking_id': self.tracking_id
+            'fulfillment_id': self.fulfillment_id
         })
 
-        self.payment_id = query.fetchone()
+        if query.fetchone():
+            return True
 
-        if not self.payment_id:
-            return False
+        return False
 
-        return True
+    def line_item_already_exists(self) -> bool:
+        query = self.db.cursor()
+        query.execute("""
+            SELECT
+                fulfillment_id
+            FROM
+                line_fulfillment
+            WHERE
+                fulfillment_id = %(fulfillment_id)s
+            AND
+                line_item_id = %(line_item_id)s
+        """, {
+            'fulfillment_id': self.fulfillment_id,
+            'line_item_id': self.line_item_id
+        })
+
+        if query.fetchone():
+            return True
+
+        return False
 
     def add(self) -> None:
         query = self.db.cursor()
@@ -81,23 +101,19 @@ class Fulfillment():
 
         self.db.commit()
 
-    def add_line_items(self) -> None:
-        for item in self.line_item_ids:
-            line_item_id = item['lineItemId']
+    def add_line_item(self) -> None:
+        query = self.db.cursor()
+        query.execute("""
+            INSERT INTO line_fulfillment (
+                fulfillment_id,
+                line_item_id
+            ) VALUES (
+                %(fulfillment_id)s,
+                %(line_item_id)s
+            )
+        """, {
+            'fulfillment_id': self.fulfillment_id,
+            'line_item_id': self.line_item_id
+        })
 
-            query = self.db.cursor()
-            query.execute("""
-                INSERT INTO line_fulfillment (
-                    fulfillment_id,
-                    line_item_id
-                ) VALUES (
-                    %(fulfillment_id)s,
-                    %(line_item_id)s
-                ) ON DUPLICATE KEY UPDATE
-                    fulfillment_id = VALUES(fulfillment_id)
-            """, {
-                'fulfillment_id': self.fulfillment_id,
-                'line_item_id': line_item_id
-            })
-
-            self.db.commit()
+        self.db.commit()

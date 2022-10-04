@@ -106,11 +106,15 @@ class Sale():
         return query.fetchall()
 
     @staticmethod
-    def get_legacy_order_ids(db, days: int = None):
+    def get_order_ids(db, days: int = None, legacy_ids: bool = False):
         query = db.cursor()
-        query_string = "SELECT legacy_order_id FROM sale"
 
-        if (days):
+        if legacy_ids:
+            query_string = "SELECT legacy_order_id FROM sale"
+        else:
+            query_string = "SELECT order_id FROM sale"
+
+        if days:
             start_date = datetime.today() - timedelta(days=days)
             query_string += " WHERE sale_date >= '" + start_date.strftime("%Y-%m-%d %H:%M:%S") + "'"
 

@@ -12,42 +12,35 @@ class GetFulfillment():
         self.content = None
         self.uri = None
 
-    def set_uri(self, uri):
-        self.uri = uri
-        return self
+    def fetch(self, order_id):
+        uri = ("https://api.ebay.com/sell/fulfillment/v1/order/"
+               f"{order_id}/shipping_fulfillment")
 
-    def fetch(self):
-        access_token = APIrequest.get_access_token(
+        if access_token := APIrequest.get_access_token(
             self.scope,
             self.credentials.ebay_refresh_token,
             self.credentials.get_oauth_token()
-        )
+        ):
+            if content := APIrequest.get_rest_content(uri, access_token):
+                self.content = content
+                return self
 
-        if access_token:
-            self.content = APIrequest.get_rest_content(self.uri, access_token)
-            return self
-        else:
-            return None
+        return None
 
     def parse(self):
         m_fulfillment = Fulfillment(self.db)
 
-        if self.content:
-            id = self.content['shipmentTrackingNumber']
-        else:
-            id = self.uri.rsplit('/', 1)[1]
-        
-        m_fulfillment.set_tracking_id(id)
+        for fulfillment in self.content.get('fulfillments'):
+            m_fulfillment.set_fulfillment_id(fulfillment.get('fulfillmentId'))
 
-        if not m_fulfillment.already_exists():
-            if self.content:
-                m_fulfillment.set_fulfillment_id(self.content['fulfillmentId'])
-                m_fulfillment.set_carrier(self.content['shippingCarrierCode'])
-                m_fulfillment.set_fulfillment_date(self.content['shippedDate'])
+            if not m_fulfillment.already_exists():
+                m_fulfillment.set_tracking_id(fulfillment.get('shipmentTrackingNumber'))
+                m_fulfillment.set_carrier(fulfillment.get('shippingCarrierCode'))
+                m_fulfillment.set_fulfillment_date(fulfillment.get('shippedDate'))
                 m_fulfillment.add()
 
-                m_fulfillment.set_line_item_ids(self.content['lineItems'])
-                m_fulfillment.add_line_items()
-            else:
-                m_fulfillment.set_fulfillment_id(id)
-                m_fulfillment.add()
+            for line_item in fulfillment.get('lineItems'):
+                m_fulfillment.set_line_item_id(line_item.get('lineItemId'))
+
+                if not m_fulfillment.line_item_already_exists():
+                    m_fulfillment.add_line_item()
