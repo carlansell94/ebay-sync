@@ -5,7 +5,7 @@ from datetime import datetime
 class Refund():
     def __init__(self, db) -> None:
         self.db = db
-        self.id = None
+        self.processor_id = None
         self.processor_name = None
         self.original_payment_id = None
         self.date = None
@@ -14,8 +14,8 @@ class Refund():
         self.fee = None
         self.fee_currency = None
 
-    def set_id(self, value: int):
-        self.id = value
+    def set_processor_id(self, value: int):
+        self.processor_id = value
         return self
 
     def set_processor_name(self, value: str):
@@ -62,12 +62,10 @@ class Refund():
             'processor_name': self.processor_name
         })
 
-        self.payment_id = query.fetchone()
+        if query.fetchone():
+            return True
 
-        if not self.payment_id:
-            return False
-
-        return True
+        return False
 
     def add(self) -> None:
         query = self.db.cursor()
@@ -93,7 +91,7 @@ class Refund():
             )
         """, {
             'processor_name': self.processor_name,
-            'processor_id': self.id,
+            'processor_id': self.processor_id,
             'original_payment_id': self.original_payment_id,
             'date': self.date,
             'amount': self.amount,

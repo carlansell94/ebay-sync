@@ -153,7 +153,7 @@ class GetSales:
 
     def parse_refund(self, payment_id, refund) -> None:
         m_refund = Refund(self.db)
-        m_refund.set_id(refund['refundId'])
+        m_refund.set_processor_id(refund['refundId'])
         m_refund.set_processor_name('EBAY')
 
         if not m_refund.already_exists():
