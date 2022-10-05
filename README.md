@@ -1,18 +1,26 @@
 Simple application to pull seller information from your eBay account using the eBay API.
 
-# Features
+This is currently functional, but considered a pre-release version.
+
+## Features
 * Fetches orders, fees and feedback
 * Able to pull in tracking numbers for labels purchased through eBay - though unfortunately, the API does not reliably return this info in all cases
 * Support for multiple orders per tracking number
-* Syncs partial/full refund information - though at present, eBay fee refunds need to be added manually
-* Includes fields to enter tracking info, actual postage cost and carrier info (currently must be done manually)
+* Syncs partial/full refund information
+* Includes fields to enter tracking and carrier info
 * Works with the new eBay managed payments system
+
+## Notes
+* The feedback sync is currently limited to orders in the past 60 days - after which, a buyer can't leave feedback. It could be updated/removed, however, which is not currently handled.
+* Postage pricing must be added manually - even if the label is purchased through eBay.
+* Fulfillment carrier name is based on the carrier chosen by the buyer. This will need to be updated manually should you use a different carrier.
+* eBay fee refunds must be entered manually.
 
 # Installation
 You can install the current pre-release version of this app using pip.
 
 ```
-pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.2/ebay-sync.tar.gz
+pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.3/ebay-sync.tar.gz
 ```
 
 This is the recommended way to install this app, to ensure all dependencies are installed.
@@ -77,7 +85,7 @@ The auth token in the response URL is only valid for 5 minutes, and is a one tim
 # eBay API Notes
 This section lists a few notes/quirks I have encountered with the eBay API, mostly so I don't forget when coming back to the project at a later date.
 
-* Fulfilment HREFs returned by the sell/fulfillment/v1/order endpoint are not always functional, sometimes returning a 404 error (despite appearing correct).
+* Fulfilment HREFs returned by the sell/fulfillment/v1/order getShippingFulfillment endpoint are not always functional, sometimes returning a 404 error (despite appearing correct). This app now uses the similar, but seemingly more reliable, getShippingFulfillments instead.
 * If a tracking number is removed from an order, the returned HREF uses the tracking number '999', rather than being removed completely.
 * If eBay CS refund a buyer from their side (i.e. seller also keeps their money), the payment API will still show a payment status of 'FULLY_REFUNDED'. However, no refund details will exist.
 * finances/getTransactions supports filtering by transaction type, but is not currently open to all sellers. Could be used to automatically fetch postage label costs when it becomes available.
@@ -89,3 +97,4 @@ While the app is working (and runs daily on my machine), there are still a few e
 * Increased logging of issues.
 * Functions to retrieve data for output elsewhere.
 * General tidy up, PEP 8 conformance
+* Support for eBay digital signatures
