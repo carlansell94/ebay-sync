@@ -131,6 +131,7 @@ def run_sync(credentials):
             print("""[ERROR] Failed to fetch fulfillment data for """
                   f"""order {order_id[0]}""")
 
+    # 60 day limit for buyer to leave feedback
     for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):
         if not GetFeedback(db, credentials).fetch(order_id[0]):
             break
