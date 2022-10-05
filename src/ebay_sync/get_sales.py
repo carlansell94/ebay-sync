@@ -43,15 +43,6 @@ class GetSales:
 
         return True
 
-    def get_fulfillment_links(self):
-        fulfillment_links = []
-
-        for sale in self.sales['orders']:
-            for fulfillment_link in sale['fulfillmentHrefs']:
-                fulfillment_links.append(fulfillment_link)
-
-        return fulfillment_links
-
     def parse(self) -> None:
         for order in self.sales['orders']:
             order_id = order['orderId']
