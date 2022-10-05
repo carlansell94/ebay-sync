@@ -8,19 +8,19 @@ class Credentials:
     def __init__(self) -> None:
         self.parser = ConfigParser()
         self.filepath = str(Path(__file__).parent.absolute()) + '/credentials.ini'
+        self.ebay_app_id = None
+        self.ebay_cert_id = None
 
     def read_config_file(self) -> bool:
-        config = self.parser.read(self.filepath)
-
-        if not config:
-            return False
-        else:
+        if self.parser.read(self.filepath):
             for section in self.parser.sections():
                 for option in self.parser.options(section):
                     value = self.parser.get(section, option)
                     setattr(self, section + '_' + option, value)
 
             return True
+
+        return False
 
     def set_config(self, config: dict) -> None:
         for section, entry in config.items():
@@ -29,7 +29,7 @@ class Credentials:
                 setattr(self, section + '_' + option, value)
 
     def save_config_file(self):
-        with open(self.filepath, 'w') as config_file:
+        with open(self.filepath, 'w', encoding="utf-8") as config_file:
             self.parser.write(config_file)
 
     def get_oauth_token(self, app_id=None, cert_id=None):

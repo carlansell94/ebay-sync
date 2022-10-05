@@ -2,7 +2,6 @@
 
 import MySQLdb
 import sys
-import re
 import argparse
 
 from .get_feedback import GetFeedback
@@ -110,52 +109,51 @@ def run_setup(credentials, args):
             setup.get_new_authnauth_token()
         )
         credentials.save_config_file()
+
+        print(
+            """[INFO] eBay API Auth'n'Auth token has been updated """
+            """successfully."""
+        )
         sys.exit()
 
 def run_sync(credentials):
     db = get_db_connection(credentials)
 
-    sales = GetSales(db, credentials)
-    if sales := sales.fetch():
+    if sales := GetSales(db, credentials).fetch():
         sales.parse()
     else:
         print("[ERROR] Failed to fetch sales data")
 
-    fulfillment = GetFulfillment(db, credentials)
     for order_id in Sale.get_order_ids(db, days=90):    # 90 day API limit
-        if fulfillment.fetch(order_id[0]):
+        if fulfillment := GetFulfillment(db, credentials).fetch(order_id[0]):
             fulfillment.parse()
         else:
             print("""[ERROR] Failed to fetch fulfillment data for """
                   f"""order {order_id[0]}""")
 
-    legacy_order_ids = Sale.get_order_ids(db, days=60, legacy_ids=True)
-    for order_id in legacy_order_ids:
-        if (re.match(r'[0-9]{12}-[0-9]{13}', str(order_id[0]))):
-            if not GetFeedback(db, credentials).fetch(order_id[0]):
-                break
+    for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):
+        if not GetFeedback(db, credentials).fetch(order_id[0]):
+            break
 
 def get_db_connection(credentials):
     try:
-        db = MySQLdb.connect(
+        return MySQLdb.connect(
             db=credentials.client_name,
             user=credentials.client_user,
             passwd=credentials.client_password
         )
-    except Exception as e:
-        print(f"[ERROR] Unable to connect to the database: {e}")
-        return False
-
-    return db
+    except Exception as error:
+        sys.exit(f"[ERROR] Unable to connect to the database: {error}")
 
 def main():
     credentials = Credentials()
     credentials_loaded = credentials.read_config_file()
-    args = get_args()
 
     if len(sys.argv) == 1:
         run_sync(credentials)
     else:
+        args = get_args()
+
         if (not credentials_loaded and not args.credentials
             and not args.setup):
             print(

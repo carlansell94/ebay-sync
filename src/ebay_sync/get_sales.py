@@ -17,39 +17,40 @@ class GetSales:
         self.sales = None
 
     def fetch(self):
-        access_token = APIrequest.get_access_token(
+        if access_token := APIrequest.get_access_token(
             self.scope,
             self.credentials.ebay_refresh_token,
             self.credentials.get_oauth_token()
-        )
-
-        if access_token:
+        ):
             self.sales = APIrequest.get_rest_content(
                 self.endpoint,
                 access_token
             )
             return self
-        else:
-            return None
+
+        return None
 
     def sync_needed(self, order_id, api_last_updated) -> bool:
-        db_last_updated = Sale.get_last_updated(self.db, order_id)
-
-        if db_last_updated != False:
-            db_last_updated = db_last_updated[0][0].strftime("%Y-%m-%dT%H:%M:%S.000Z")
-
-        if api_last_updated == db_last_updated:
-            return False
+        if db_last_updated := Sale.get_last_updated(self.db, order_id):
+            if (db_last_updated[0][0].strftime("%Y-%m-%dT%H:%M:%S.000Z")
+                == api_last_updated):
+                return False
 
         return True
 
     def parse(self) -> None:
         for order in self.sales['orders']:
             order_id = order['orderId']
-            order_items = []
 
             if self.sync_needed(order_id, order['lastModifiedDate']):
+                order_items = []
                 self.parse_order(order)
+
+                # API returns one address per fulfillmentStartInstructions array
+                self.parse_address(
+                    order_id,
+                    order['fulfillmentStartInstructions'][0]
+                )
 
                 for line_item in order['lineItems']:
                     item_payment_info = self.parse_line_item(order_id, line_item)
@@ -57,9 +58,6 @@ class GetSales:
 
                 for payment in order['paymentSummary']['payments']:
                     payment_id = self.parse_payment(order, payment, order_items)
-
-                for address in order['fulfillmentStartInstructions']:
-                    self.parse_address(order_id, address)
 
                 for refund in order['paymentSummary']['refunds']:
                     self.parse_refund(payment_id, refund)

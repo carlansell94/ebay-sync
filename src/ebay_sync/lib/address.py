@@ -63,14 +63,11 @@ class Address():
             'post_code': self.post_code
         })
 
-        address_id = query.fetchone()
-
-        if not address_id:
-            return False
-        else:
+        if address_id := query.fetchone():
             self.address_id = address_id[0]
+            return True
 
-        return True
+        return False
 
     def add(self) -> int:
         query = self.db.cursor()

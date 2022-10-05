@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
-import MySQLdb
 from getpass import getpass
 from pathlib import Path
 from subprocess import Popen, PIPE
 from urllib.parse import urlparse, parse_qs
+import MySQLdb
 
 from ..lib.api_request import APIrequest
 
@@ -23,12 +23,12 @@ def __import_schema(db_name) -> bool:
         f"SOURCE {schema_path}"
     ]
 
-    process = Popen(commands, stdout=PIPE, stderr=PIPE)
-    stdout, stderr = process.communicate()
+    with Popen(commands, stdout=PIPE, stderr=PIPE) as process:
+        _, stderr = process.communicate()
 
-    if process.returncode == 1:
-        print(f"Error setting up database: {stderr}")
-        return False
+        if process.returncode == 1:
+            print(f"Error setting up database: {stderr}")
+            return False
 
     return True
 
@@ -68,8 +68,8 @@ def check_db_credentials(credentials: dict) -> bool:
             user=credentials['user'],
             passwd=credentials['password']
         )
-    except Exception as e:
-        print(f"[ERROR] Unable to connect to the database: {e}")
+    except Exception as error:
+        print(f"[ERROR] Unable to connect to the database: {error}")
         return False
 
     return True
@@ -88,7 +88,7 @@ def check_all_credentials(credentials: dict) -> bool:
 
     if not check_db_credentials(credentials):
         valid = False
-    
+
     oauth_token = credentials.get_oauth_token(
         credentials.ebay_app_id,
         credentials.ebay_cert_id
@@ -99,16 +99,16 @@ def check_all_credentials(credentials: dict) -> bool:
         oauth_token
     ):
         valid = False
-    
+
     return valid
 
 def check_db_is_empty(db) -> bool:
     query = db.cursor()
     query.execute("""SHOW TABLES""")
-    
+
     if query.fetchone() is None:
         return True
-    
+
     return False
 
 def install_db(db, db_name: str) -> bool:
@@ -118,9 +118,9 @@ def install_db(db, db_name: str) -> bool:
         confirm = input(
             """Database is not empty. Continuing will drop existing """
             """tables used by this app. Do you want to continue? (y/n): """
-        )
+        ).upper()
 
-        if confirm != 'Y' and confirm != 'y':
+        if confirm != 'Y':
             return False
 
     return __import_schema(db_name)
@@ -159,7 +159,7 @@ def get_new_refresh_token(url: str, oauth_token: str, runame: str):
 
     try:
         auth_code = parse_qs(url.query)['code'][0]
-    except KeyError as e:
+    except KeyError as _:
         print(
             """[ERROR] Auth code not found, ensure the full eBay auth URL """
             """is provided."""

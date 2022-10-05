@@ -58,7 +58,7 @@ class Refund():
             WHERE processor_id = %(processor_id)s
             AND processor_name = %(processor_name)s
         """, {
-            'processor_id': self.id,
+            'processor_id': self.processor_id,
             'processor_name': self.processor_name
         })
 

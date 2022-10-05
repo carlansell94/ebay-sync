@@ -41,7 +41,7 @@ class Feedback():
                 feedback_type=VALUES(feedback_type),
                 comment=VALUES(comment)
         """, {
-            'feedback_id': self.feedback_id, 
+            'feedback_id': self.feedback_id,
             'legacy_order_id': self.legacy_order_id,
             'feedback_type': self.feedback_type,
             'comment': self.comment

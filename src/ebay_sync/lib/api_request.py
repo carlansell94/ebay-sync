@@ -13,12 +13,13 @@ class APIrequest:
         req.add_header('Authorization', 'Basic ' + oauth_token)
 
         try:
-            content = urlopen(req).read()
-            token = loads(content)[token_type]
-            return token
+            with urlopen(req) as content:
+                token = loads(content.read())[token_type]
+                return token
         except error.HTTPError as e:
             body = loads(e.read().decode())
             print(f"[ERROR] {body['error']}: {body['error_description']}")
+            return None
 
     @staticmethod
     def get_refresh_token(auth_code: str, oauth_token: str, runame: str):
@@ -46,10 +47,10 @@ class APIrequest:
         req.add_header('Authorization', 'Bearer ' + access_token)
 
         try:
-            content = urlopen(req).read()
-            json = loads(content)
-            return json
-        except error.HTTPError as e:
+            with urlopen(req) as content:
+                json = loads(content.read())
+                return json
+        except error.HTTPError:
             return None
 
     @staticmethod
@@ -76,5 +77,6 @@ class APIrequest:
         req.add_header('X-EBAY-API-CALL-NAME', call)
         req.add_header('X-EBAY-API-SITEID', site_id)
         req.add_header('Content-Type', "text/xml")
-        content = urlopen(req).read()
-        return content
+
+        with urlopen(req) as content:
+            return content.read()
