@@ -54,7 +54,7 @@ class GetSales:
 
     def parse(self) -> None:
         for order in self.sales['orders']:
-            order_id = order['orderId'].split('!')[0]
+            order_id = order['orderId']
             order_items = []
 
             if self.sync_needed(order_id, order['lastModifiedDate']):
@@ -75,7 +75,7 @@ class GetSales:
 
     def parse_order(self, order) -> None:
         m_order = Sale(self.db)
-        m_order.set_order_id(order['orderId'].split('!')[0])
+        m_order.set_order_id(order['orderId'])
         m_order.set_legacy_order_id(order['legacyOrderId'])
         m_order.set_sale_date(order['creationDate'])
         m_order.set_buyer_username(order['buyer']['username'])
@@ -112,7 +112,7 @@ class GetSales:
         m_payment.set_payment_status(order['orderPaymentStatus'])
 
         if not m_payment.already_exists():
-            m_payment.set_order_id(order['orderId'].split('!')[0])
+            m_payment.set_order_id(order['orderId'])
             m_payment.set_payment_date(payment['paymentDate'])
             m_payment.set_update_date(payment['paymentDate'])
             m_payment.set_payment_amount(order['pricingSummary']['total']['value'])
