@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
 import xml.etree.ElementTree as ET
-from datetime import datetime
 
 from .lib.api_request import APIrequest
 from .lib.feedback import Feedback
+from .lib.logger import Logger
 
 class GetFeedback:
     ns = {'ebay_ns': 'urn:ebay:apis:eBLBaseComponents'}
@@ -55,8 +55,6 @@ class GetFeedback:
         return True
 
     def error(self, response) -> None:
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
         for error in response.findall('ebay_ns:Errors', self.ns):
             classification = error.find(
                 'ebay_ns:ErrorClassification', self.ns
@@ -64,5 +62,6 @@ class GetFeedback:
             code = error.find('ebay_ns:ErrorCode', self.ns).text
             message = error.find('ebay_ns:LongMessage', self.ns).text
 
-            print(f"""[{timestamp}] [ERROR] Unable to sync feedback. """
-                  f"""{classification}: {message} ({code})""")
+            msg = (f"""Unable to sync feedback. {classification}: """
+                   f"""{message} ({code})""")
+            Logger.create_entry(message=msg, entry_type="error")
