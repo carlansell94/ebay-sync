@@ -132,7 +132,8 @@ class GetSales:
         if not m_address.already_exists():
             m_address.set_id(m_address.add())
 
-        m_address.add_order()
+        if not m_address.order_exists():
+            m_address.add_order()
 
     def parse_refund(self, payment_id, refund) -> None:
         m_refund = Refund(self.db)

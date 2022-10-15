@@ -69,6 +69,27 @@ class Address():
 
         return False
 
+    def order_exists(self) -> bool:
+        query = self.db.cursor()
+        query.execute("""
+            SELECT
+                order_id
+            FROM
+                sale_address
+            WHERE
+                order_id = %(order_id)s
+            AND
+                address_id = %(address_id)s
+        """, {
+            'order_id': self.order_id,
+            'address_id': self.address_id
+        })
+
+        if query.fetchone():
+            return True
+
+        return False
+
     def add(self) -> int:
         query = self.db.cursor()
         query.execute("""
