@@ -77,6 +77,7 @@ class Feedback():
                 'comment_type': self.comment_type,
                 'comment': self.comment
             })
+            self.db.commit()
         except self.db.OperationalError as error:
             msg = (f"""Unable to add feedback record for feedback id """
                    f"""'{self.id}'. Message: {error}.""")
@@ -102,6 +103,7 @@ class Feedback():
                 'comment': self.comment,
                 'feedback_id': self.id
             })
+            self.db.commit()
         except self.db.OperationalError as error:
             msg = (f"""Unable to update feedback record for feedback id """
                    f"""'{self.id}'. Message: {error}.""")
