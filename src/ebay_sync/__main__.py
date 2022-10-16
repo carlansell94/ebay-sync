@@ -125,11 +125,11 @@ def run_sync(credentials):
         print("[ERROR] Failed to fetch sales data")
 
     for order_id in Sale.get_order_ids(db, days=90):    # 90 day API limit
-        if fulfillment := GetFulfillment(db, credentials).fetch(order_id[0]):
+        if fulfillment := GetFulfillment(db, credentials).fetch(order_id):
             fulfillment.parse()
         else:
             print("""[ERROR] Failed to fetch fulfillment data for """
-                  f"""order {order_id[0]}""")
+                  f"""order {order_id}""")
 
     # 60 day limit for buyer to leave feedback
     for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):

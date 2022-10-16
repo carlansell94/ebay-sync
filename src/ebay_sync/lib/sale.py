@@ -106,7 +106,7 @@ class Sale():
         return query.fetchall()
 
     @staticmethod
-    def get_order_ids(db, days: int = None, legacy_ids: bool = False):
+    def get_order_ids(db, days: int = None, legacy_ids: bool = False) -> list:
         query = db.cursor()
 
         if legacy_ids:
@@ -119,4 +119,4 @@ class Sale():
             query_string += " WHERE sale_date >= '" + start_date.strftime("%Y-%m-%d %H:%M:%S") + "'"
 
         query.execute(query_string)
-        return query.fetchall()
+        return [item[0] for item in query.fetchall()]
