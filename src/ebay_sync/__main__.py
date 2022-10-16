@@ -133,8 +133,9 @@ def run_sync(credentials):
 
     # 60 day limit for buyer to leave feedback
     for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):
-        if not GetFeedback(db, credentials).fetch(order_id[0]):
-            break
+        feedback = GetFeedback(db, credentials)
+        if records := feedback.fetch(order_id):
+            feedback.parse(records)
 
 def get_db_connection(credentials):
     try:

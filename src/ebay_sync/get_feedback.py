@@ -13,7 +13,8 @@ class GetFeedback:
         self.db = db
         self.credentials = credentials
 
-    def fetch(self, order_id) -> bool:
+    def fetch(self, order_id):
+        self.order_id = order_id
         item_id, transaction_id = order_id.split('-')
 
         args = (
@@ -32,27 +33,39 @@ class GetFeedback:
 
         if response.find('ebay_ns:Ack', self.ns).text == 'Failure':
             self.error(response)
-            return False
+        else:
+            return response
 
-        if fb_detail := response.find('.//ebay_ns:FeedbackDetail', self.ns):
+    def parse(self, record) -> None:
+        if fb_detail := record.find('.//ebay_ns:FeedbackDetail', self.ns):
             feedback = Feedback(self.db)
-            feedback.set_legacy_order_id(order_id)
+            feedback.legacy_order_id = self.order_id
 
-            feedback.set_feedback_id(fb_detail.find(
+            feedback.id = fb_detail.find(
                 'ebay_ns:FeedbackID', self.ns
-            ).text)
+            ).text
 
-            feedback.set_comment(fb_detail.find(
+            feedback.comment = fb_detail.find(
                 'ebay_ns:CommentText', self.ns
-            ).text)
+            ).text
 
-            feedback.set_feedback_type(fb_detail.find(
+            feedback.comment_type = fb_detail.find(
                 'ebay_ns:CommentType', self.ns
-            ).text)
+            ).text
 
-            feedback.add()
-
-        return True
+            if not feedback.valid:
+                msg = (f"Unable to add feedback id {feedback.id}.")
+                Logger.create_entry(message=msg, entry_type="error")
+                return
+            
+            if feedback.exists():
+                success = feedback.update()
+            else:
+                success = feedback.add()
+            
+            if not success:
+                msg = (f"Unable to add feedback id {feedback.id}.")
+                Logger.create_entry(message=msg, entry_type="error")
 
     def error(self, response) -> None:
         for error in response.findall('ebay_ns:Errors', self.ns):
