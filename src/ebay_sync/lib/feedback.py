@@ -1,50 +1,111 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
+
+from .logger import Logger
+
+@dataclass
 class Feedback():
-    def __init__(self, db) -> None:
-        self.db = db
-        self.legacy_order_id = None
-        self.feedback_id = None
-        self.feedback_type = None
-        self.comment = None
+    db: any
+    id: int = None
+    legacy_order_id: str = None
+    _comment_type: str = None
+    _comment: str = None
+    _valid: bool = True
 
-    def set_legacy_order_id(self, value: str):
-        self.legacy_order_id = value
-        return self
+    @property
+    def comment_type(self):
+        return self._comment_type
 
-    def set_feedback_id(self, value: int):
-        self.feedback_id = value
-        return self
+    @comment_type.setter
+    def comment_type(self, comment_type: str):
+        try:
+            assert(comment_type in ('Positive','Neutral','Negative','Withdrawn'))
+            self._comment_type = comment_type
+        except AssertionError:
+            msg = (f"""Invalid comment type '{comment_type}' for feedback """
+                   f"""id {self.id}.""")
+            Logger.create_entry(message=msg, entry_type="warn")
+            self._valid = False
 
-    def set_feedback_type(self, value: str):
-        self.feedback_type = value
-        return self
+    @property
+    def comment(self):
+        return self._comment
 
-    def set_comment(self, value: str):
-        self.comment = value.encode("utf-8")
-        return self
+    @comment.setter
+    def comment(self, comment: str):
+        self._comment = comment.encode("utf-8")
+    
+    @property
+    def valid(self):
+        return self._valid
 
-    def add(self) -> None:
+    def exists(self):
         query = self.db.cursor()
         query.execute("""
-            INSERT INTO feedback (
-                feedback_id,
-                legacy_order_id,
-                feedback_type,
-                comment
-            ) VALUES (
-                %(feedback_id)s, 
-                %(legacy_order_id)s,
-                %(feedback_type)s,
-                %(comment)s
-            ) ON DUPLICATE KEY UPDATE
-                feedback_type=VALUES(feedback_type),
-                comment=VALUES(comment)
+            SELECT
+                feedback_id
+            FROM
+                feedback
+            WHERE
+                feedback_id = %(id)s
         """, {
-            'feedback_id': self.feedback_id,
-            'legacy_order_id': self.legacy_order_id,
-            'feedback_type': self.feedback_type,
-            'comment': self.comment
+            'id': self.id
         })
 
-        self.db.commit()
+        return query.fetchone()
+
+    def add(self) -> bool:
+        query = self.db.cursor()
+
+        try:
+            query.execute("""
+                INSERT INTO feedback (
+                    feedback_id,
+                    legacy_order_id,
+                    feedback_type,
+                    comment
+                ) VALUES (
+                    %(feedback_id)s, 
+                    %(legacy_order_id)s,
+                    %(comment_type)s,
+                    %(comment)s
+                )
+            """, {
+                'feedback_id': self.id,
+                'legacy_order_id': self.legacy_order_id,
+                'comment_type': self.comment_type,
+                'comment': self.comment
+            })
+        except self.db.OperationalError as error:
+            msg = (f"""Unable to add feedback record for feedback id """
+                   f"""'{self.id}'. Message: {error}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            return False
+
+        return True
+
+    def update(self) -> bool:
+        query = self.db.cursor()
+
+        try:
+            query.execute("""
+                UPDATE
+                    feedback
+                SET
+                    feedback_type = %(comment_type)s,
+                    comment = %(comment)s
+                WHERE
+                    feedback_id = %(feedback_id)s
+            """, {
+                'comment_type': self.comment_type,
+                'comment': self.comment,
+                'feedback_id': self.id
+            })
+        except self.db.OperationalError as error:
+            msg = (f"""Unable to update feedback record for feedback id """
+                   f"""'{self.id}'. Message: {error}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            return False
+
+        return True
