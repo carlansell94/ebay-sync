@@ -31,16 +31,16 @@ class GetFulfillment():
         m_fulfillment = Fulfillment(self.db)
 
         for fulfillment in self.content.get('fulfillments'):
-            m_fulfillment.set_fulfillment_id(fulfillment.get('fulfillmentId'))
+            m_fulfillment.fulfillment_id = fulfillment.get('fulfillmentId')
 
-            if not m_fulfillment.already_exists():
-                m_fulfillment.set_tracking_id(fulfillment.get('shipmentTrackingNumber'))
-                m_fulfillment.set_carrier(fulfillment.get('shippingCarrierCode'))
-                m_fulfillment.set_fulfillment_date(fulfillment.get('shippedDate'))
+            if not m_fulfillment.exists():
+                m_fulfillment.tracking_id = fulfillment.get('shipmentTrackingNumber')
+                m_fulfillment.carrier = fulfillment.get('shippingCarrierCode')
+                m_fulfillment.fulfillment_date = fulfillment.get('shippedDate')
                 m_fulfillment.add()
 
             for line_item in fulfillment.get('lineItems'):
-                m_fulfillment.set_line_item_id(line_item.get('lineItemId'))
+                m_fulfillment.line_item_id = line_item.get('lineItemId')
 
-                if not m_fulfillment.line_item_already_exists():
+                if not m_fulfillment.line_item_exists():
                     m_fulfillment.add_line_item()

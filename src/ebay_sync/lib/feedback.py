@@ -7,7 +7,7 @@ from .logger import Logger
 @dataclass
 class Feedback():
     db: any
-    id: int = None
+    feedback_id: int = None
     legacy_order_id: str = None
     _comment_type: str = None
     _comment: str = None
@@ -24,7 +24,7 @@ class Feedback():
             self._comment_type = comment_type
         except AssertionError:
             msg = (f"""Invalid comment type '{comment_type}' for feedback """
-                   f"""id {self.id}.""")
+                   f"""id {self.feedback_id}.""")
             Logger.create_entry(message=msg, entry_type="warn")
             self._valid = False
 
@@ -50,7 +50,7 @@ class Feedback():
             WHERE
                 feedback_id = %(id)s
         """, {
-            'id': self.id
+            'id': self.feedback_id
         })
 
         return query.fetchone()
@@ -72,7 +72,7 @@ class Feedback():
                     %(comment)s
                 )
             """, {
-                'feedback_id': self.id,
+                'feedback_id': self.feedback_id,
                 'legacy_order_id': self.legacy_order_id,
                 'comment_type': self.comment_type,
                 'comment': self.comment
@@ -80,7 +80,7 @@ class Feedback():
             self.db.commit()
         except self.db.OperationalError as error:
             msg = (f"""Unable to add feedback record for feedback id """
-                   f"""'{self.id}'. Message: {error}.""")
+                   f"""'{self.feedback_id}'. Message: {error}.""")
             Logger.create_entry(message=msg, entry_type="error")
             return False
 
@@ -101,12 +101,12 @@ class Feedback():
             """, {
                 'comment_type': self.comment_type,
                 'comment': self.comment,
-                'feedback_id': self.id
+                'feedback_id': self.feedback_id
             })
             self.db.commit()
         except self.db.OperationalError as error:
             msg = (f"""Unable to update feedback record for feedback id """
-                   f"""'{self.id}'. Message: {error}.""")
+                   f"""'{self.feedback_id}'. Message: {error}.""")
             Logger.create_entry(message=msg, entry_type="error")
             return False
 

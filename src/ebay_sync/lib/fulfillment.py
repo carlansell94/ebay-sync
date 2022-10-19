@@ -1,38 +1,39 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 from datetime import datetime
 
+from .logger import Logger
+
+@dataclass
 class Fulfillment():
-    def __init__(self, db) -> None:
-        self.db = db
-        self.fulfillment_id = None
-        self.carrier = None
-        self.tracking_id = None
-        self.fulfillment_date = None
-        self.line_item_id = None
+    db: any
+    fulfillment_id: int = None
+    carrier: str = None
+    tracking_id: str = None
+    line_item_id: int = None
+    _fulfillment_date: datetime = None
+    _valid: bool = True
 
-    def set_fulfillment_id(self, value: int):
-        self.fulfillment_id = value
-        return self
+    @property
+    def fulfillment_date(self) -> datetime:
+        return self._fulfillment_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    def set_carrier(self, value: str):
-        self.carrier = value
-        return self
+    @fulfillment_date.setter
+    def fulfillment_date(self, date: str) -> None:
+        try:
+            self._fulfillment_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+            msg = (f"""Fulfillment date '{date}' does not match the """
+                   f"""expected format for id {self.fulfillment_id}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            self._valid = False
 
-    def set_tracking_id(self, value: str):
-        self.tracking_id = value
-        return self
+    @property
+    def valid(self) -> bool:
+        return self._valid
 
-    def set_fulfillment_date(self, value: str):
-        self.fulfillment_date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
-                            .strftime("%Y-%m-%d %H:%M:%S"))
-        return self
-
-    def set_line_item_id(self, value: int):
-        self.line_item_id = value
-        return self
-
-    def already_exists(self) -> bool:
+    def exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT
@@ -45,12 +46,9 @@ class Fulfillment():
             'fulfillment_id': self.fulfillment_id
         })
 
-        if query.fetchone():
-            return True
+        return query.fetchone()
 
-        return False
-
-    def line_item_already_exists(self) -> bool:
+    def line_item_exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT
@@ -66,19 +64,10 @@ class Fulfillment():
             'line_item_id': self.line_item_id
         })
 
-        if query.fetchone():
-            return True
-
-        return False
+        return query.fetchone()
 
     def add(self) -> None:
         query = self.db.cursor()
-
-        if not hasattr(self, 'carrier'):
-            self.carrier = None
-
-        if not hasattr(self, 'fulfillment_date'):
-            self.fulfillment_date = None
 
         query.execute("""
             INSERT INTO fulfillment (

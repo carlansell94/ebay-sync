@@ -41,7 +41,7 @@ class GetFeedback:
             feedback = Feedback(self.db)
             feedback.legacy_order_id = self.order_id
 
-            feedback.id = fb_detail.find(
+            feedback.feedback_id = fb_detail.find(
                 'ebay_ns:FeedbackID', self.ns
             ).text
 
@@ -54,7 +54,7 @@ class GetFeedback:
             ).text
 
             if not feedback.valid:
-                msg = (f"Unable to add feedback id {feedback.id}.")
+                msg = (f"Unable to add feedback id {feedback.feedback_id}.")
                 Logger.create_entry(message=msg, entry_type="error")
                 return
             
@@ -64,7 +64,7 @@ class GetFeedback:
                 success = feedback.add()
             
             if not success:
-                msg = (f"Unable to add feedback id {feedback.id}.")
+                msg = (f"Unable to add feedback id {feedback.feedback_id}.")
                 Logger.create_entry(message=msg, entry_type="error")
 
     def error(self, response) -> None:

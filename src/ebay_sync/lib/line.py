@@ -1,73 +1,92 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
+
+from .logger import Logger
+
+@dataclass
 class Line():
-    def __init__(self, db) -> None:
-        self.db = db
-        self.order_id = None
-        self.item_id = None
-        self.line_item_id = None
-        self.title = None
-        self.sale_format = None
-        self.quantity = None
-        self.fulfillment_status = None
+    db: any
+    order_id: str = None
+    item_id: int = None
+    line_item_id: int = None
+    title: str = None
+    sale_format: str = None
+    quantity: int = None
+    fulfillment_status: str = None
 
-    def set_order_id(self, value: str):
-        self.order_id = value
-        return self
-
-    def set_item_id(self, value: int):
-        self.item_id = value
-        return self
-
-    def set_line_item_id(self, value: int):
-        self.line_item_id = value
-        return self
-
-    def set_title(self, value: str):
-        self.title = value
-        return self
-
-    def set_sale_format(self, value: str):
-        self.sale_format = value
-        return self
-
-    def set_quantity(self, value: int):
-        self.quantity = value
-        return self
-
-    def set_fulfillment_status(self, value: str):
-        self.fulfillment_status = value
-        return self
-
-    def add(self) -> None:
+    def exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
-            INSERT INTO line (
-                line_item_id,
-                order_id,
-                item_id,
-                title,
-                sale_format,
-                quantity,
-                fulfillment_status
-            ) VALUES (
-                %(line_item_id)s,
-                %(order_id)s,
-                %(item_id)s,
-                %(title)s,
-                %(sale_format)s,
-                %(quantity)s,
-                %(fulfillment_status)s
-            ) ON DUPLICATE KEY UPDATE
-                fulfillment_status=VALUES(fulfillment_status)
+            SELECT
+                order_id
+            FROM
+                line 
+            WHERE
+                order_id = %(order_id)s
         """, {
-            'line_item_id': self.line_item_id,
-            'order_id': self.order_id,
-            'item_id': self.item_id,
-            'title': self.title,
-            'sale_format': self.sale_format,
-            'quantity': self.quantity,
-            'fulfillment_status': self.fulfillment_status
+            'order_id': self.order_id
         })
 
-        self.db.commit()
+        return query.fetchone()
+
+    def add(self) -> bool:
+        query = self.db.cursor()
+
+        try:
+            query.execute("""
+                INSERT INTO line (
+                    line_item_id,
+                    order_id,
+                    item_id,
+                    title,
+                    sale_format,
+                    quantity,
+                    fulfillment_status
+                ) VALUES (
+                    %(line_item_id)s,
+                    %(order_id)s,
+                    %(item_id)s,
+                    %(title)s,
+                    %(sale_format)s,
+                    %(quantity)s,
+                    %(fulfillment_status)s
+                )
+            """, {
+                'line_item_id': self.line_item_id,
+                'order_id': self.order_id,
+                'item_id': self.item_id,
+                'title': self.title,
+                'sale_format': self.sale_format,
+                'quantity': self.quantity,
+                'fulfillment_status': self.fulfillment_status
+            })
+        except self.db.OperationalError as error:
+            msg = (f"""Unable to add line record for order {self.order_id}. """
+                   f"""Message: {error}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            return False
+
+        return True
+
+    def update(self) -> bool:
+        query = self.db.cursor()
+
+        try:
+            query.execute("""
+                UPDATE line
+                SET
+                    fulfillment_status = %(fulfillment_status)s
+                WHERE
+                    order_id = %(order_id)s
+            """, {
+                'fulfillment_status': self.fulfillment_status,
+                'order_id': self.order_id
+            })
+        except self.db.OperationalError as error:
+            msg = (f"""Unable to update line record for order """
+                   f"""{self.order_id}. Message: {error}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            return False
+
+        return True

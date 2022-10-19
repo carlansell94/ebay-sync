@@ -1,71 +1,60 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass
 from datetime import datetime
 
+from .logger import Logger
+
+@dataclass
 class Refund():
-    def __init__(self, db) -> None:
-        self.db = db
-        self.processor_id = None
-        self.processor_name = None
-        self.original_payment_id = None
-        self.date = None
-        self.amount = None
-        self.currency = None
-        self.fee = None
-        self.fee_currency = None
+    db: any
+    refund_id: int = None
+    processor_name: str = 'EBAY'
+    processor_refund_id: int = None
+    original_payment_id: int = None
+    amount: float = None
+    currency: str = None
+    fee: float = 0
+    fee_currency: str = None
+    _transaction_date: datetime = None
+    _valid: bool = True
 
-    def set_processor_id(self, value: int):
-        self.processor_id = value
-        return self
+    @property
+    def transaction_date(self) -> datetime:
+        return self._transaction_date.strftime("%Y-%m-%d %H:%M:%S")
 
-    def set_processor_name(self, value: str):
-        self.processor_name = value
-        return self
+    @transaction_date.setter
+    def transaction_date(self, date: str) -> None:
+        try:
+            self._transaction_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
+        except ValueError:
+            msg = (f"""Refund date '{date}' does not match the expected """
+                   f"""format for refund '{self.processor_refund_id}'.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            self._valid = False
 
-    def set_original_payment_id(self, value: int):
-        self.original_payment_id = value
-        return self
+    @property
+    def valid(self) -> bool:
+        return self._valid
 
-    def set_date(self, value: str):
-        self.date = (datetime.strptime(value, "%Y-%m-%dT%H:%M:%S.%fZ")
-                        .strftime("%Y-%m-%d %H:%M:%S"))
-
-        return self
-
-    def set_amount(self, value):
-        self.amount = value
-        return self
-
-    def set_currency(self, value: str):
-        self.currency = value
-        return self
-
-    def set_fee(self, value):
-        self.fee = value
-        return self
-
-    def set_fee_currency(self, value: str):
-        self.fee_currency = value
-        return self
-
-    def already_exists(self) -> bool:
+    def exists(self) -> bool:
         query = self.db.cursor()
         query.execute("""
             SELECT
                 processor_id,
                 processor_name
-            FROM refund
-            WHERE processor_id = %(processor_id)s
-            AND processor_name = %(processor_name)s
+            FROM
+                refund
+            WHERE
+                processor_id = %(processor_id)s
+            AND
+                processor_name = %(processor_name)s
         """, {
-            'processor_id': self.processor_id,
+            'processor_id': self.processor_refund_id,
             'processor_name': self.processor_name
         })
 
-        if query.fetchone():
-            return True
-
-        return False
+        return query.fetchone()
 
     def add(self) -> None:
         query = self.db.cursor()
@@ -91,9 +80,9 @@ class Refund():
             )
         """, {
             'processor_name': self.processor_name,
-            'processor_id': self.processor_id,
+            'processor_id': self.processor_refund_id,
             'original_payment_id': self.original_payment_id,
-            'date': self.date,
+            'date': self.transaction_date,
             'amount': self.amount,
             'currency': self.currency,
             'fee': self.fee,
