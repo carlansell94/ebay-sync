@@ -13,6 +13,9 @@ class Line():
     title: str = None
     sale_format: str = None
     quantity: int = None
+    item_cost: float = None
+    postage_cost: float = None
+    currency: str = None
     fulfillment_status: str = None
 
     def exists(self) -> bool:
@@ -42,6 +45,9 @@ class Line():
                     title,
                     sale_format,
                     quantity,
+                    item_cost,
+                    postage_cost,
+                    currency,
                     fulfillment_status
                 ) VALUES (
                     %(line_item_id)s,
@@ -50,6 +56,9 @@ class Line():
                     %(title)s,
                     %(sale_format)s,
                     %(quantity)s,
+                    %(item_cost)s,
+                    %(postage_cost)s,
+                    %(currency)s,
                     %(fulfillment_status)s
                 )
             """, {
@@ -59,6 +68,9 @@ class Line():
                 'title': self.title,
                 'sale_format': self.sale_format,
                 'quantity': self.quantity,
+                'item_cost': self.item_cost,
+                'postage_cost': self.postage_cost,
+                'currency': self.currency,
                 'fulfillment_status': self.fulfillment_status
             })
         except self.db.OperationalError as error:

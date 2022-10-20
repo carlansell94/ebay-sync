@@ -43,23 +43,14 @@ class Payment():
             query.execute("""
                 INSERT INTO payment_items (
                     line_item_id,
-                    payment_id,
-                    currency,
-                    item_cost,
-                    postage_cost
+                    payment_id
                 ) VALUES (
                     %(line_item_id)s,
-                    %(payment_id)s,
-                    %(currency)s,
-                    %(cost)s,
-                    %(postage_cost)s
+                    %(payment_id)s
                 )
             """, {
                 'line_item_id': item['line_item_id'],
-                'payment_id': self.payment_id,
-                'currency': item['currency'],
-                'cost': item['cost'],
-                'postage_cost': item['postage_cost']
+                'payment_id': self.payment_id
             })
 
             self.db.commit()

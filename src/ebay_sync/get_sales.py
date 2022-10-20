@@ -95,13 +95,13 @@ class GetSales:
             m_line_item.title = line_item.get('title')
             m_line_item.sale_format = line_item.get('soldFormat')
             m_line_item.quantity = line_item.get('quantity')
+            m_line_item.item_cost = line_item.get('lineItemCost').get('value')
+            m_line_item.postage_cost = line_item.get('deliveryCost').get('shippingCost').get('value')
+            m_line_item.currency = line_item.get('lineItemCost').get('currency')
             m_line_item.add()
 
         payment_info = {
             'line_item_id': line_item.get('lineItemId'),
-            'currency': line_item.get('lineItemCost').get('currency'),
-            'cost': line_item.get('lineItemCost').get('value'),
-            'postage_cost': line_item.get('deliveryCost').get('shippingCost').get('value')
         }
 
         return payment_info

@@ -66,6 +66,9 @@ CREATE TABLE `line` (
   `title` varchar(80) NOT NULL,
   `sale_format` set('AUCTION','FIXED_PRICE','OTHER','SECOND_CHANCE_OFFER') NOT NULL,
   `quantity` tinyint(3) UNSIGNED NOT NULL,
+  `currency` varchar(3) NOT NULL,
+  `item_cost` decimal(6,2) NOT NULL,
+  `postage_cost` decimal(6,2) NOT NULL,
   `fulfillment_status` set('FULFILLED','IN_PROGRESS','NOT_STARTED','') NOT NULL,
   PRIMARY KEY (`line_item_id`),
   KEY `line_order_id` (`order_id`),
@@ -111,9 +114,6 @@ CREATE TABLE `payment` (
 CREATE TABLE `payment_items` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
   `payment_id` smallint(5) UNSIGNED NOT NULL,
-  `currency` varchar(3) NOT NULL,
-  `item_cost` decimal(6,2) NOT NULL,
-  `postage_cost` decimal(6,2) NOT NULL,
   PRIMARY KEY (`line_item_id`),
   CONSTRAINT `payment_items-line_item_id` FOREIGN KEY (`line_item_id`) REFERENCES `line` (`line_item_id`) ON UPDATE CASCADE,
   CONSTRAINT `payment_items-payment_id` FOREIGN KEY (`payment_id`) REFERENCES `payment` (`payment_id`) ON UPDATE CASCADE
