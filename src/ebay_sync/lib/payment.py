@@ -17,7 +17,6 @@ class Payment():
     fee_amount: float = 0
     fee_currency: str = None
     _transaction_date: datetime = None
-    _update_date: datetime = None
     _valid: bool = True
 
     @property
@@ -30,20 +29,6 @@ class Payment():
             self._transaction_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
         except ValueError:
             msg = (f"""Payment date '{date}' does not match the expected """
-                   f"""format for payment '{self.processor_payment_id}'.""")
-            Logger.create_entry(message=msg, entry_type="error")
-            self._valid = False
-
-    @property
-    def update_date(self) -> datetime:
-        return self._update_date.strftime("%Y-%m-%d %H:%M:%S")
-
-    @update_date.setter
-    def update_date(self, date: str) -> None:
-        try:
-            self._update_date = datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%fZ")
-        except ValueError:
-            msg = (f"""Update date '{date}' does not match the expected """
                    f"""format for payment '{self.processor_payment_id}'.""")
             Logger.create_entry(message=msg, entry_type="error")
             self._valid = False
@@ -113,8 +98,7 @@ class Payment():
                 payment_amount,
                 payment_currency,
                 fee_amount,
-                fee_currency,
-                last_updated
+                fee_currency
             ) VALUES (
                 %(order_id)s,
                 %(processor_name)s,
@@ -123,8 +107,7 @@ class Payment():
                 %(payment_amount)s,
                 %(payment_currency)s,
                 %(fee_amount)s,
-                %(fee_currency)s,
-                %(update_date)s
+                %(fee_currency)s
             )
         """, {
             'order_id': self.order_id,
@@ -134,8 +117,7 @@ class Payment():
             'payment_amount': self.transaction_amount,
             'payment_currency': self.transaction_currency,
             'fee_amount': self.fee_amount,
-            'fee_currency': self.fee_currency,
-            'update_date': self.update_date
+            'fee_currency': self.fee_currency
         })
 
         self.db.commit()

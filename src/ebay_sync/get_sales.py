@@ -115,7 +115,6 @@ class GetSales:
         if not m_payment.exists():
             m_payment.order_id = order.get('orderId')
             m_payment.transaction_date = payment.get('paymentDate')
-            m_payment.update_date = payment.get('paymentDate')
             m_payment.transaction_amount = order.get('pricingSummary').get('total').get('value')
             m_payment.transaction_currency = order.get('pricingSummary').get('total').get('currency')
             m_payment.fee_currency = order.get('pricingSummary').get('total').get('currency')
