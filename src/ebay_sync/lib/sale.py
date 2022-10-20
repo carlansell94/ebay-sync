@@ -12,20 +12,36 @@ class Sale():
     legacy_order_id: str = None
     buyer_username: str = None
     fee: float = None
-    _status: str = None
+    _payment_status: str = None
+    _fulfillment_status: str = None
     _sale_date: datetime = None
     _last_updated: datetime = None
     _valid: bool = True
 
     @property
-    def status(self) -> str:
-        return self._status
+    def payment_status(self) -> str:
+        return self._payment_status
 
-    @status.setter
-    def status(self, status: str) -> None:
+    @payment_status.setter
+    def payment_status(self, status: str) -> None:
+        try:
+            assert status in ("FAILED", "PAID", "PENDING", "PARTIALLY_REFUNDED", "FULLY_REFUNDED")
+            self._payment_status = status
+        except AssertionError:
+            msg = (f"""Status '{status}' does not match an expected value """
+                   f"""for order {self.order_id}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            self._valid = False
+
+    @property
+    def fulfillment_status(self) -> str:
+        return self._fulfillment_status
+
+    @fulfillment_status.setter
+    def fulfillment_status(self, status: str) -> None:
         try:
             assert status in ("FULFILLED", "IN PROGRESS", "NOT STARTED")
-            self._status = status
+            self._fulfillment_status = status
         except AssertionError:
             msg = (f"""Status '{status}' does not match an expected value """
                    f"""for order {self.order_id}.""")
@@ -83,7 +99,8 @@ class Sale():
                     legacy_order_id,
                     sale_date,
                     buyer_username,
-                    status,
+                    payment_status,
+                    fulfillment_status,
                     sale_fee,
                     last_updated
                 ) VALUES (
@@ -91,7 +108,8 @@ class Sale():
                     %(legacy_order_id)s,
                     %(sale_date)s,
                     %(buyer_username)s,
-                    %(status)s,
+                    %(payment_status)s,
+                    %(fulfillment_status)s,
                     %(fee)s,
                     %(last_updated)s
                 )
@@ -100,7 +118,8 @@ class Sale():
                 'legacy_order_id': self.legacy_order_id,
                 'sale_date': self.sale_date,
                 'buyer_username': self.buyer_username,
-                'status': self.status,
+                'payment_status': self.payment_status,
+                'fulfillment_status': self.fulfillment_status,
                 'fee': self.fee,
                 'last_updated': self.last_updated
             })
@@ -119,12 +138,14 @@ class Sale():
             query.execute("""
                 UPDATE sale
                 SET
-                    status = %(status)s,
+                    payment_status = %(payment_status)s,
+                    fulfillment_status = %(fulfillment_status)s,
                     last_updated = %(last_updated)s
                 WHERE
                     order_id = %(order_id)s
             """, {
-                'status': self.status,
+                'payment_status': self.payment_status,
+                'fulfillment_status': self.fulfillment_status,
                 'last_updated': self.last_updated,
                 'order_id': self.order_id
             })

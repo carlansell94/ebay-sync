@@ -69,7 +69,8 @@ class GetSales:
         m_order.legacy_order_id = order.get('legacyOrderId')
         m_order.sale_date = order.get('creationDate')
         m_order.buyer_username = order.get('buyer').get('username')
-        m_order.status = order.get('orderFulfillmentStatus')
+        m_order.payment_status = order.get('orderPaymentStatus')
+        m_order.fulfillment_status = order.get('orderFulfillmentStatus')
         m_order.fee = order.get('totalMarketplaceFee').get('value')
         m_order.last_updated = order.get('lastModifiedDate')
 
@@ -110,7 +111,6 @@ class GetSales:
 
         m_payment.processor_payment_id = order.get('salesRecordReference')
         m_payment.processor_name = payment.get('paymentMethod')
-        m_payment.status = order.get('orderPaymentStatus')
 
         if not m_payment.exists():
             m_payment.order_id = order.get('orderId')
@@ -121,8 +121,6 @@ class GetSales:
             m_payment.fee_currency = order.get('pricingSummary').get('total').get('currency')
             m_payment.add()
             m_payment.add_items(items)
-        else:
-            m_payment.update_items(items)
 
         return m_payment.payment_id
 

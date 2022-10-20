@@ -17,7 +17,6 @@ class Payment():
     fee_amount: float = 0
     fee_currency: str = None
     _transaction_date: datetime = None
-    _status: str = None
     _update_date: datetime = None
     _valid: bool = True
 
@@ -32,21 +31,6 @@ class Payment():
         except ValueError:
             msg = (f"""Payment date '{date}' does not match the expected """
                    f"""format for payment '{self.processor_payment_id}'.""")
-            Logger.create_entry(message=msg, entry_type="error")
-            self._valid = False
-
-    @property
-    def status(self) -> str:
-        return self._status
-
-    @status.setter
-    def status(self, status: str) -> None:
-        try:
-            assert status in ("FAILED", "PAID", "PENDING", "PARTIALLY_REFUNDED", "FULLY_REFUNDED")
-            self._status = status
-        except AssertionError:
-            msg = (f"""Status '{status}' does not match an expected value """
-                   f"""for payment '{self.processor_payment_id}'.""")
             Logger.create_entry(message=msg, entry_type="error")
             self._valid = False
 
@@ -75,14 +59,12 @@ class Payment():
                 INSERT INTO payment_items (
                     line_item_id,
                     payment_id,
-                    payment_status,
                     currency,
                     item_cost,
                     postage_cost
                 ) VALUES (
                     %(line_item_id)s,
                     %(payment_id)s,
-                    %(payment_status)s,
                     %(currency)s,
                     %(cost)s,
                     %(postage_cost)s
@@ -90,7 +72,6 @@ class Payment():
             """, {
                 'line_item_id': item['line_item_id'],
                 'payment_id': self.payment_id,
-                'payment_status': self.status,
                 'currency': item['currency'],
                 'cost': item['cost'],
                 'postage_cost': item['postage_cost']
@@ -120,26 +101,6 @@ class Payment():
             return False
 
         return True
-
-    def update_items(self, items: dict) -> None:
-        for item in items:
-            query = self.db.cursor()
-            query.execute("""
-                UPDATE
-                    payment_items
-                SET
-                    payment_status = %(payment_status)s
-                WHERE
-                    payment_id = %(payment_id)s
-                AND
-                    line_item_id = %(line_item_id)s
-            """, {
-                'payment_status': self.status,
-                'payment_id': self.payment_id,
-                'line_item_id': item['line_item_id']
-            })
-
-            self.db.commit()
 
     def add(self) -> int:
         query = self.db.cursor()

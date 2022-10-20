@@ -30,7 +30,8 @@ CREATE TABLE `sale` (
   `legacy_order_id` varchar(26) NOT NULL,
   `sale_date` datetime NOT NULL,
   `buyer_username` varchar(64) NOT NULL,
-  `status` set('FULFILLED','IN_PROGRESS','NOT_STARTED','') NOT NULL,
+  `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
+  `fulfillment_status` set('FULFILLED','IN_PROGRESS','NOT_STARTED') NOT NULL,
   `sale_fee` decimal(4,2) UNSIGNED DEFAULT NULL,
   `last_updated` datetime NOT NULL,
   PRIMARY KEY (`order_id`),
@@ -111,7 +112,6 @@ CREATE TABLE `payment` (
 CREATE TABLE `payment_items` (
   `line_item_id` bigint(14) UNSIGNED NOT NULL,
   `payment_id` smallint(5) UNSIGNED NOT NULL,
-  `payment_status` set('FAILED','FULLY_REFUNDED','PAID','PARTIALLY_REFUNDED','PENDING') NOT NULL,
   `currency` varchar(3) NOT NULL,
   `item_cost` decimal(6,2) NOT NULL,
   `postage_cost` decimal(6,2) NOT NULL,
