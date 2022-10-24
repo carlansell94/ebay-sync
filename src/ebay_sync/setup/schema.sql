@@ -133,7 +133,7 @@ CREATE TABLE `refund` (
   `refund_id` smallint(5) UNSIGNED NOT NULL AUTO_INCREMENT,
   `processor_name` set('PAYPAL','EBAY') NOT NULL DEFAULT 'PAYPAL',
   `processor_id` varchar(17) NOT NULL,
-  `original_id` smallint(5) UNSIGNED NOT NULL,
+  `original_payment_id` varchar(26) NOT NULL,
   `refund_date` datetime NOT NULL,
   `refund_amount` decimal(6,2) NOT NULL DEFAULT 0.00,
   `refund_currency` varchar(3) NOT NULL DEFAULT 'GBP',

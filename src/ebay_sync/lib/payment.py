@@ -37,9 +37,28 @@ class Payment():
     def valid(self) -> bool:
         return self._valid
 
-    def add_items(self, items: dict) -> None:
-        for item in items:
-            query = self.db.cursor()
+    def item_exists(self, line_item_id: str) -> bool:
+        query = self.db.cursor()
+        query.execute("""
+            SELECT
+                line_item_id
+            FROM
+                payment_items
+            WHERE
+                line_item_id = %(line_item_id)s
+            AND
+                payment_id = %(payment_id)s
+        """, {
+            'line_item_id': line_item_id,
+            'payment_id': self.payment_id
+        })
+
+        return query.fetchone()
+
+    def add_item(self, line_item_id: str) -> None:
+        query = self.db.cursor()
+        
+        try:
             query.execute("""
                 INSERT INTO payment_items (
                     line_item_id,
@@ -49,11 +68,17 @@ class Payment():
                     %(payment_id)s
                 )
             """, {
-                'line_item_id': item['line_item_id'],
+                'line_item_id': line_item_id,
                 'payment_id': self.payment_id
             })
+        except (self.db.OperationalError, self.db.IntegrityError) as error:
+            msg = (f"""Unable to add line item {line_item_id} """
+                   f"""to payment record '{self.payment_id}'. """
+                   f"""Message: {error}.""")
+            Logger.create_entry(message=msg, entry_type="error")
+            return False
 
-            self.db.commit()
+        return True
 
     def exists(self) -> bool:
         query = self.db.cursor()
@@ -71,12 +96,11 @@ class Payment():
             'processor_name': self.processor_name
         })
 
-        self.payment_id = query.fetchone()
+        if payment_id := query.fetchone():
+            self.payment_id = payment_id[0]
+            return True
 
-        if not self.payment_id:
             return False
-
-        return True
 
     def add(self) -> int:
         query = self.db.cursor()
@@ -113,3 +137,19 @@ class Payment():
 
         self.db.commit()
         self.payment_id = query.lastrowid
+
+    @staticmethod
+    def get_id(db, order_id: str):
+        query = db.cursor()
+        query.execute("""
+            SELECT
+                payment_id
+            FROM
+                payment
+            WHERE
+                order_id = %(order_id)s
+        """, {
+            'order_id': order_id
+        })
+
+        return query.fetchone()

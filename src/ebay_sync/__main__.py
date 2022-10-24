@@ -7,6 +7,7 @@ import argparse
 from .get_feedback import GetFeedback
 from .get_fulfillment import GetFulfillment
 from .get_sales import GetSales
+from .get_finances import GetFinances
 from .lib.sale import Sale
 from .setup import setup
 from .setup.credentials import Credentials
@@ -130,6 +131,7 @@ def run_sync(credentials):
         else:
             print("""[ERROR] Failed to fetch fulfillment data for """
                   f"""order {order_id}""")
+        GetFinances(db, credentials).fetch(order_id).parse()
 
     # 60 day limit for buyer to leave feedback
     for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):

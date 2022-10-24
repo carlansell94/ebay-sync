@@ -43,7 +43,6 @@ class GetSales:
             order_id = order.get('orderId')
 
             if self.sync_needed(order_id, order.get('lastModifiedDate')):
-                order_items = []
                 if not self.parse_order(order):
                     continue
 
@@ -54,14 +53,7 @@ class GetSales:
                 )
 
                 for line_item in order.get('lineItems'):
-                    item_payment_info = self.parse_line_item(order_id, line_item)
-                    order_items.append(item_payment_info)
-
-                for payment in order.get('paymentSummary').get('payments'):
-                    payment_id = self.parse_payment(order, payment, order_items)
-
-                for refund in order.get('paymentSummary').get('refunds'):
-                    self.parse_refund(payment_id, refund)
+                    self.parse_line_item(order_id, line_item)
 
     def parse_order(self, order) -> bool:
         m_order = Sale(db=self.db)
@@ -82,7 +74,7 @@ class GetSales:
 
         return m_order.add()
 
-    def parse_line_item(self, order_id, line_item) -> dict:
+    def parse_line_item(self, order_id, line_item) -> None:
         m_line_item = Line(db=self.db)
         m_line_item.order_id = order_id
         m_line_item.fulfillment_status = line_item.get('lineItemFulfillmentStatus')
@@ -100,29 +92,6 @@ class GetSales:
             m_line_item.currency = line_item.get('lineItemCost').get('currency')
             m_line_item.add()
 
-        payment_info = {
-            'line_item_id': line_item.get('lineItemId'),
-        }
-
-        return payment_info
-
-    def parse_payment(self, order, payment, items) -> int:
-        m_payment = Payment(db=self.db)
-
-        m_payment.processor_payment_id = order.get('salesRecordReference')
-        m_payment.processor_name = payment.get('paymentMethod')
-
-        if not m_payment.exists():
-            m_payment.order_id = order.get('orderId')
-            m_payment.transaction_date = payment.get('paymentDate')
-            m_payment.transaction_amount = order.get('pricingSummary').get('total').get('value')
-            m_payment.transaction_currency = order.get('pricingSummary').get('total').get('currency')
-            m_payment.fee_currency = order.get('pricingSummary').get('total').get('currency')
-            m_payment.add()
-            m_payment.add_items(items)
-
-        return m_payment.payment_id
-
     def parse_address(self, order_id, address) -> None:
         m_address = Address(db=self.db)
         m_address.order_id = order_id
@@ -139,21 +108,3 @@ class GetSales:
 
         if not m_address.order_exists():
             m_address.add_order()
-
-    def parse_refund(self, payment_id, refund) -> bool:
-        m_refund = Refund(db=self.db)
-        m_refund.processor_refund_id = refund.get('refundId')
-
-        if not m_refund.exists():
-            m_refund.date = refund.get('refundDate')
-            m_refund.original_payment_id = payment_id
-            m_refund.amount = refund.get('amount').get('value')
-            m_refund.currency = refund.get('amount').get('currency')
-            m_refund.fee_currency = refund.get('amount').get('currency')
-
-            if not m_refund.valid:
-                return False
-
-            m_refund.add()
-
-        return True

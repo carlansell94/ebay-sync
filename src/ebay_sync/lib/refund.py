@@ -62,7 +62,7 @@ class Refund():
             INSERT INTO refund (
                 processor_name,
                 processor_id,
-                original_id,
+                original_payment_id,
                 refund_date,
                 refund_amount,
                 refund_currency,
