@@ -3,6 +3,7 @@
 from json import loads
 from urllib import error, parse
 from urllib.request import Request, urlopen
+import time
 
 class APIrequest:
     @staticmethod
@@ -42,16 +43,40 @@ class APIrequest:
         return APIrequest._get_token(body, oauth_token, 'access_token')
 
     @staticmethod
-    def get_rest_content(endpoint: str, access_token: str) -> str:
-        req = Request(endpoint)
+    def get_rest_content(
+        endpoint: str,
+        access_token: str,
+        headers: str=None,
+        body: str=None
+    ) -> str:
+        req = Request(endpoint, headers=headers or {}, data=body)
         req.add_header('Authorization', 'Bearer ' + access_token)
 
         try:
             with urlopen(req) as content:
                 json = loads(content.read())
                 return json
-        except error.HTTPError:
+        except error.HTTPError as e:
             return None
+
+    @staticmethod
+    def get_digital_signature_headers(
+        endpoint: str,
+        ebay_signing_key_jwe: str,
+        get_signature: callable
+    ) -> str:
+        signature_params = (
+            '("x-ebay-signature-key" "@method" "@path" "@authority");'
+            f"created={int(time.time())}"
+        )
+        signature = get_signature(endpoint, signature_params)
+
+        return {
+            "Signature-Input": f"sig1={signature_params}",
+            "Signature": f"sig1=:{signature}:",
+            "x-ebay-signature-key": ebay_signing_key_jwe,
+            "x-ebay-enforce-signature": "true",
+        }
 
     @staticmethod
     def get_xml_content(call: str, credentials: dict, args: str) -> str:
@@ -80,3 +105,22 @@ class APIrequest:
 
         with urlopen(req) as content:
             return content.read()
+
+    @staticmethod
+    def get_signing_key(access_token: str) -> dict:
+        headers = {
+            "Authorization": "Bearer " + access_token,
+            "Content-Type": "application/json",
+        }
+
+        req = Request(
+            'https://apiz.ebay.com/developer/key_management/v1/signing_key',
+            headers=headers,
+            data='{"signingKeyCipher": "ED25519"}'.encode()
+        )
+
+        try:
+            with urlopen(req) as content:
+                return loads(content.read())
+        except error.HTTPError as e:
+            return None

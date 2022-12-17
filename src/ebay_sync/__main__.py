@@ -29,6 +29,8 @@ def get_args():
         help="Fetch a new refresh token using the provided auth URL")
     parser_setup.add_argument("-a", "--authnauth-token",
         help="Set a new authnauth token", action='store_true')
+    parser_setup.add_argument("-k", "--digital-signature-key",
+        help="Generate a new digital signature signing key", action='store_true')
     parser_setup.add_argument("-t", "--test", action='store_true',
         help="Test the database/api credentials")
 
@@ -48,7 +50,7 @@ def run_setup(credentials, args):
                 """create a new credentials file."""
             )
             sys.exit()
-        
+
         if not setup.install_db(db, credentials.client_name):
             print(
                 """[ERROR] Unable to install database, check the specified """
@@ -116,6 +118,19 @@ def run_setup(credentials, args):
             """successfully."""
         )
         sys.exit()
+
+    if args.digital_signature_key:
+        oauth_token = credentials.get_oauth_token(
+            credentials.ebay_app_id,
+            credentials.ebay_cert_id
+        )
+
+        key = setup.get_new_signing_key(credentials.ebay_refresh_token, oauth_token)
+        credentials.set_option_value('ebay_signing_key_id', key['signingKeyId'])
+        credentials.set_option_value('ebay_signing_key_pubkey', key['publicKey'])
+        credentials.set_option_value('ebay_signing_key_jwe', key['jwe'])
+        credentials.save_digital_signature_private_key(key['privateKey'])
+        credentials.save_config_file()
 
 def run_sync(credentials):
     db = get_db_connection(credentials)

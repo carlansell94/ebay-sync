@@ -149,6 +149,7 @@ def credentials_setup(credentials):
     }
 
     credentials.set_config(config)
+    get_new_signing_key(ebay_credentials['refresh_token'], oauth_token)
     credentials.save_config_file()
 
     print("")
@@ -170,3 +171,13 @@ def get_new_refresh_token(url: str, oauth_token: str, runame: str):
 
 def get_new_authnauth_token() -> str:
     return input("New Auth'n'auth token: ")
+
+def get_new_signing_key(refresh_token: str, oauth_token: str):
+    if access_token := APIrequest.get_access_token(
+        'https://api.ebay.com/oauth/api_scope',
+        refresh_token,
+        oauth_token
+    ):
+        return APIrequest.get_signing_key(access_token)
+
+    return False

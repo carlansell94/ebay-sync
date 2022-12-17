@@ -9,6 +9,7 @@ This is currently functional, but considered a pre-release version.
 * Syncs partial/full refund information
 * Includes fields to enter tracking and carrier info
 * Works with the new eBay managed payments system
+* Includes basic support for eBay digital signatures
 
 ## Notes
 * The feedback sync is currently limited to orders in the past 60 days - after which, a buyer can't leave feedback. It could be updated/removed, however, which is not currently handled.
@@ -47,6 +48,7 @@ This can be used with a scheduler (such as cron) to periodically sync new data.
 | ```-s```       | Sets up the credentials, and installs the database schema. Equivalent to running -c and -i |
 | ```-r "url"``` | Fetch a new API refresh token, using the provided auth URL |
 | ```-a```       | Add a new API Auth'n'Auth token |
+| ```-k```       | Generate a new digital signature signing key |
 | ```-t```       | Test the database/API credentials |
 
 ## Initial Setup
@@ -82,6 +84,13 @@ The application will fetch a new refresh token, and update your config with the 
 
 The auth token in the response URL is only valid for 5 minutes, and is a one time code. If the refresh token does not update successfully, complete a new test sign-in to generate a new response URL.
 
+# Digital Signatures
+Ditigal signatures are required for certain API calls in the Finances, Fulfillment, Trading and Post-Order APIs. This app supports generating the required digital signature, as well as creating the appropriate headers to use for the API call.
+
+On first run, a digital signature will automatically be created and stored. The private key will be saved to ```setup/digital_signature.key```. A new key can be created at any time, using ```ebay_sync -k```.
+
+Digital signatures are used to fetch financial information, using the Finances API.
+
 # eBay API Notes
 This section lists a few notes/quirks I have encountered with the eBay API, mostly so I don't forget when coming back to the project at a later date.
 
@@ -97,4 +106,3 @@ While the app is working (and runs daily on my machine), there are still a few e
 * Increased logging of issues.
 * Functions to retrieve data for output elsewhere.
 * General tidy up, PEP 8 conformance
-* Support for eBay digital signatures

@@ -24,7 +24,17 @@ class GetFinances():
             self.credentials.ebay_refresh_token,
             self.credentials.get_oauth_token()
         ):
-            if content := APIrequest.get_rest_content(uri, access_token):
+            headers = APIrequest.get_digital_signature_headers(
+                endpoint=uri,
+                ebay_signing_key_jwe=self.credentials.ebay_signing_key_jwe,
+                get_signature=self.credentials.get_digital_signature
+            )
+
+            if content := APIrequest.get_rest_content(
+                endpoint=uri,
+                access_token=access_token,
+                headers=headers
+            ):
                 self.content = content
                 return self
 
