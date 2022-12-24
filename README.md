@@ -21,7 +21,7 @@ This is currently functional, but considered a pre-release version.
 You can install the current pre-release version of this app using pip.
 
 ```
-pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.3/ebay-sync.tar.gz
+pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.4/ebay-sync.tar.gz
 ```
 
 This is the recommended way to install this app, to ensure all dependencies are installed.
@@ -105,4 +105,4 @@ While the app is working (and runs daily on my machine), there are still a few e
 * Improved handling of API error responses.
 * Increased logging of issues.
 * Functions to retrieve data for output elsewhere.
-* General tidy up, PEP 8 conformance
+* General tidy up, restructuring and PEP 8 conformance
