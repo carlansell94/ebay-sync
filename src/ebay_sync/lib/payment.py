@@ -53,7 +53,10 @@ class Payment():
             'payment_id': self.payment_id
         })
 
-        return query.fetchone()
+        if query.fetchone():
+            return True
+        
+        return False
 
     def add_item(self, line_item_id: str) -> None:
         query = self.db.cursor()

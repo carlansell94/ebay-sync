@@ -178,6 +178,8 @@ def get_new_signing_key(refresh_token: str, oauth_token: str):
         refresh_token,
         oauth_token
     ):
-        return APIrequest.get_signing_key(access_token)
+        if key := APIrequest.get_signing_key(access_token):
+            print("Signing key created successfully")
+            return key
 
     return False
