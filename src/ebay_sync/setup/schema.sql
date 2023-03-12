@@ -45,7 +45,7 @@ CREATE TABLE `addresses` (
   `address_line_2` varchar(250) DEFAULT NULL,
   `city` varchar(64) NOT NULL,
   `county` varchar(64) DEFAULT NULL,
-  `post_code` varchar(9) NOT NULL,
+  `post_code` varchar(10) NOT NULL,
   `country_code` char(2) NOT NULL,
   PRIMARY KEY (`address_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
