@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import sys
+
 from base64 import b64encode
 from configparser import ConfigParser
 from pathlib import Path
@@ -28,7 +30,7 @@ class Credentials:
                 """to generate a new signing key."""
             )
             Logger.create_entry(message=msg, entry_type="error")
-            return False
+            sys.exit(1)
 
     def save_digital_signature_private_key(self, key: str) -> bool:
         try:

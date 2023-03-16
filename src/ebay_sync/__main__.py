@@ -146,7 +146,12 @@ def run_sync(credentials):
         else:
             print("""[ERROR] Failed to fetch fulfillment data for """
                   f"""order {order_id}""")
-        GetFinances(db, credentials).fetch(order_id).parse()
+
+        if finances := GetFinances(db, credentials).fetch(order_id):
+            finances.parse()
+        else:
+            print("""[ERROR] Failed to fetch finance data for """
+                  f"""order {order_id}""")
 
     # 60 day limit for buyer to leave feedback
     for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):
