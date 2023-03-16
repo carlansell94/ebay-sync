@@ -33,6 +33,9 @@ class GetFulfillment():
         for fulfillment in self.content.get('fulfillments'):
             m_fulfillment.fulfillment_id = fulfillment.get('fulfillmentId')
 
+            if m_fulfillment.fulfillment_id is None:
+                continue
+
             if not m_fulfillment.exists():
                 m_fulfillment.tracking_id = fulfillment.get('shipmentTrackingNumber')
                 m_fulfillment.carrier = fulfillment.get('shippingCarrierCode')
