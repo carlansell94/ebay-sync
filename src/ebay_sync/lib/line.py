@@ -27,8 +27,11 @@ class Line():
                 line 
             WHERE
                 order_id = %(order_id)s
+            AND
+                line_item_id = %(line_item_id)s
         """, {
-            'order_id': self.order_id
+            'order_id': self.order_id,
+            'line_item_id': self.line_item_id
         })
 
         return query.fetchone()

@@ -78,12 +78,12 @@ class GetSales:
         m_line_item = Line(db=self.db)
         m_line_item.order_id = order_id
         m_line_item.fulfillment_status = line_item.get('lineItemFulfillmentStatus')
+        m_line_item.line_item_id = line_item.get('lineItemId')
 
         if m_line_item.exists():
             m_line_item.update()
         else:
             m_line_item.item_id = line_item.get('legacyItemId')
-            m_line_item.line_item_id = line_item.get('lineItemId')
             m_line_item.title = line_item.get('title')
             m_line_item.sale_format = line_item.get('soldFormat')
             m_line_item.quantity = line_item.get('quantity')
