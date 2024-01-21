@@ -41,11 +41,16 @@ class GetFinances():
         return None
 
     def parse(self):
+        refunds = []
+
         for transaction in self.content.get('transactions'):
             if (transaction_type := transaction.get('transactionType')) == 'SALE':
                 self._parse_sale(transaction)
             elif transaction_type == 'REFUND':
-                self._parse_refund(transaction)
+                refunds.append(transaction)
+
+        for refund in refunds:
+            self._parse_refund(refund)
 
     def _parse_sale(self, transaction: dict):
         payment = Payment(db=self.db)
