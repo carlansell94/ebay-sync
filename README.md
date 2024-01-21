@@ -21,7 +21,7 @@ This is currently functional, but considered a pre-release version.
 You can install the current pre-release version of this app using pip.
 
 ```
-pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.4/ebay-sync.tar.gz
+pip install https://github.com/carlansell94/ebay-sync/releases/download/v0.5/ebay-sync.tar.gz
 ```
 
 This is the recommended way to install this app, to ensure all dependencies are installed.

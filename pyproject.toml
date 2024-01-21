@@ -1,6 +1,6 @@
 [project]
 name = "ebay-sync"
-version = "0.5-dev"
+version = "0.5"
 authors = [
   { name="carlansell94" },
 ]
