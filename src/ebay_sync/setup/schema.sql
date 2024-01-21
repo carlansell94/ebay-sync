@@ -124,9 +124,7 @@ CREATE TABLE `feedback` (
   `legacy_order_id` varchar(255) NOT NULL,
   `feedback_type` set('Negative','Neutral','Positive','Withdrawn') NOT NULL,
   `comment` varchar(512) NOT NULL,
-  PRIMARY KEY (`feedback_id`),
-  KEY `feedback_legacy_order_id` (`legacy_order_id`),
-  CONSTRAINT `feedback-legacy_order_id` FOREIGN KEY (`legacy_order_id`) REFERENCES `sale` (`legacy_order_id`) ON UPDATE CASCADE
+  PRIMARY KEY (`feedback_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE `refund` (
