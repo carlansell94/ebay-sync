@@ -12,7 +12,7 @@ This is currently functional, but considered a pre-release version.
 * Includes basic support for eBay digital signatures
 
 ## Notes
-* The feedback sync is currently limited to orders in the past 60 days - after which, a buyer can't leave feedback. It could be updated/removed, however, which is not currently handled.
+* The feedback sync currently fetches all feedback for a seller, updating records which already exist in the database. There is currently no link to the relevent sales record, due to eBay changing the format of legacy order IDs. A more long-term fix will be explored in a future update.
 * Postage pricing must be added manually - even if the label is purchased through eBay.
 * Fulfillment carrier name is based on the carrier chosen by the buyer. This will need to be updated manually should you use a different carrier.
 * eBay fee refunds must be entered manually.
@@ -98,6 +98,7 @@ This section lists a few notes/quirks I have encountered with the eBay API, most
 * If a tracking number is removed from an order, the returned HREF uses the tracking number '999', rather than being removed completely.
 * If eBay CS refund a buyer from their side (i.e. seller also keeps their money), the payment API will still show a payment status of 'FULLY_REFUNDED'. However, no refund details will exist.
 * finances/getTransactions supports filtering by transaction type, but is not currently open to all sellers. Could be used to automatically fetch postage label costs when it becomes available.
+* Feedback API syncs all available records on every run, due to changes to the format of legacy order IDs. So far, I have been unable to use the OrderLineItemID field, and this value is not returned in the output. Hopefully, this is a quirk of the API which will be fixed in the future.
 
 # Future Development
 While the app is working (and runs daily on my machine), there are still a few enhancements planned before I would consider it to be 'stable'.
