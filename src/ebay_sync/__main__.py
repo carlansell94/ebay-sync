@@ -153,11 +153,9 @@ def run_sync(credentials):
             print("""[ERROR] Failed to fetch finance data for """
                   f"""order {order_id}""")
 
-    # 60 day limit for buyer to leave feedback
-    for order_id in Sale.get_order_ids(db, days=60, legacy_ids=True):
-        feedback = GetFeedback(db, credentials)
-        if records := feedback.fetch(order_id):
-            feedback.parse(records)
+    feedback = GetFeedback(db, credentials)
+    if records := feedback.fetch():
+        feedback.parse(records)
 
 def get_db_connection(credentials):
     try:

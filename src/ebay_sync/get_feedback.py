@@ -13,18 +13,15 @@ class GetFeedback:
         self.db = db
         self.credentials = credentials
 
-    def fetch(self, order_id):
-        self.order_id = order_id
-        item_id, transaction_id = order_id.split('-')
-
+    def fetch(self):
         args = (
             "<DetailLevel>ReturnAll</DetailLevel>"
             "<FeedbackType>FeedbackReceivedAsSeller</FeedbackType>"
-            f"<ItemID>{item_id}</ItemID>"
-            f"<TransactionID>{transaction_id}</TransactionID>"
             "<OutputSelector>CommentType</OutputSelector>"
             "<OutputSelector>CommentText</OutputSelector>"
             "<OutputSelector>FeedbackID</OutputSelector>"
+            "<OutputSelector>ItemID</OutputSelector>"
+            "<OutputSelector>TransactionID</OutputSelector>"
         )
 
         content = APIrequest.get_xml_content('GetFeedback', self.credentials,
@@ -37,7 +34,9 @@ class GetFeedback:
             return response
 
     def parse(self, record) -> None:
-        if fb_detail := record.find('.//ebay_ns:FeedbackDetail', self.ns):
+        records = record.findall('.//ebay_ns:FeedbackDetail', self.ns)
+
+        for fb_detail in records:
             feedback = Feedback(self.db)
             feedback.legacy_order_id = self.order_id
 
@@ -51,6 +50,12 @@ class GetFeedback:
 
             feedback.comment_type = fb_detail.find(
                 'ebay_ns:CommentType', self.ns
+            ).text
+
+            feedback.legacy_order_id = fb_detail.find(
+                'ebay_ns:ItemID', self.ns
+            ).text + "-" + fb_detail.find(
+                'ebay_ns:TransactionID', self.ns
             ).text
 
             if not feedback.valid:
