@@ -40,7 +40,7 @@ class Sale():
     @fulfillment_status.setter
     def fulfillment_status(self, status: str) -> None:
         try:
-            assert status in ("FULFILLED", "IN PROGRESS", "NOT STARTED")
+            assert status in ("FULFILLED", "IN_PROGRESS", "NOT_STARTED")
             self._fulfillment_status = status
         except AssertionError:
             msg = (f"""Status '{status}' does not match an expected value """

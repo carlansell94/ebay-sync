@@ -38,7 +38,6 @@ class GetFeedback:
 
         for fb_detail in records:
             feedback = Feedback(self.db)
-            feedback.legacy_order_id = self.order_id
 
             feedback.feedback_id = fb_detail.find(
                 'ebay_ns:FeedbackID', self.ns
