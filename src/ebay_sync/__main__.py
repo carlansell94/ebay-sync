@@ -154,7 +154,9 @@ def run_sync(credentials):
                   f"""order {order_id}""")
 
     feedback = GetFeedback(db, credentials)
-    if records := feedback.fetch():
+    records = feedback.fetch()
+
+    if records is not None:
         feedback.parse(records)
 
 def get_db_connection(credentials):
