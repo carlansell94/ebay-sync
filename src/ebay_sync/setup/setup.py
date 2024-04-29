@@ -38,6 +38,7 @@ def get_db_credentials() -> dict:
     print("----------------------------")
 
     credentials = {
+        'host': input("Database host (leave empty for localhost): ") or 'localhost',
         'name': input("Database name: "),
         'user': input("Username: "),
         'password': getpass("Password: ")
@@ -64,6 +65,7 @@ def get_ebay_api_credentials() -> dict:
 def check_db_credentials(credentials: dict) -> bool:
     try:
         MySQLdb.connect(
+            host=credentials['host'],
             db=credentials['name'],
             user=credentials['user'],
             passwd=credentials['password']

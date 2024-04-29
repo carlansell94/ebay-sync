@@ -160,6 +160,7 @@ def run_sync(credentials):
 def get_db_connection(credentials):
     try:
         return MySQLdb.connect(
+            host=credentials.client_host,
             db=credentials.client_name,
             user=credentials.client_user,
             passwd=credentials.client_password
