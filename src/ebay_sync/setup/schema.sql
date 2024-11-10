@@ -138,7 +138,7 @@ CREATE TABLE `refund` (
   `fee_refund_amount` decimal(5,2) NOT NULL DEFAULT 0.00,
   `fee_refund_currency` varchar(3) NOT NULL DEFAULT 'GBP',
   PRIMARY KEY (`refund_id`),
-  CONSTRAINT `refund-original_id` FOREIGN KEY (`original_id`) REFERENCES `payment` (`payment_id`) ON UPDATE CASCADE
+  CONSTRAINT `refund-original_id` FOREIGN KEY (`original_payment_id`) REFERENCES `payment` (`payment_id`) ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 COMMIT;
