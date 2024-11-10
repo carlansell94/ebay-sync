@@ -63,7 +63,7 @@ class GetSales:
         m_order.buyer_username = order.get('buyer').get('username')
         m_order.payment_status = order.get('orderPaymentStatus')
         m_order.fulfillment_status = order.get('orderFulfillmentStatus')
-        m_order.fee = order.get('totalMarketplaceFee').get('value')
+        m_order.fee = order.get('totalMarketplaceFee', {}).get('value', 0)
         m_order.last_updated = order.get('lastModifiedDate')
 
         if not m_order.valid:
